@@ -1,13 +1,202 @@
+import { useState } from "react";
+import { Link } from "react-router";
 import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
+import { Button } from "../components/ui/button";
+import { Input, Textarea } from "../components/ui/input";
+import { Card } from "../components/ui/card";
+import { StarRating } from "../components/ui/star-rating";
+import { ProductCard } from "../components/ui/product-card";
+import {
+	featuredProducts,
+	categories,
+	seedReviews,
+	type AppReview,
+} from "../data/landing";
 
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
-  ];
+export function meta(_: Route.MetaArgs) {
+	return [
+		{ title: "SEAPEDIA · One marketplace, thousands of stores" },
+		{
+			name: "description",
+			content:
+				"Shop from sellers across Indonesia on SEAPEDIA — a multi-store marketplace for buyers, sellers, and drivers.",
+		},
+	];
 }
 
 export default function Home() {
-  return <Welcome />;
+	const [reviews, setReviews] = useState<AppReview[]>(seedReviews);
+	const [name, setName] = useState("");
+	const [rating, setRating] = useState(5);
+	const [comment, setComment] = useState("");
+
+	function handleSubmit(event: React.FormEvent) {
+		event.preventDefault();
+		if (!name.trim() || !comment.trim()) return;
+		setReviews((prev) => [
+			{
+				id: crypto.randomUUID(),
+				name: name.trim(),
+				rating,
+				comment: comment.trim(),
+			},
+			...prev,
+		]);
+		setName("");
+		setComment("");
+		setRating(5);
+	}
+
+	return (
+		<main className="flex-1 pt-16">
+			<section className="bg-brand-gradient">
+				<div className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-10 lg:grid-cols-[1.4fr_1fr]">
+					<div>
+						<span className="mb-3 inline-block rounded-md bg-brand-100 px-3 py-1 text-xs font-medium text-brand-700">
+							One marketplace · thousands of stores
+						</span>
+						<h1 className="text-3xl font-medium leading-tight text-gray-900 sm:text-4xl">
+							Shop from many stores,{" "}
+							<span className="text-brand-600">one place</span>
+						</h1>
+						<p className="mt-3 max-w-lg text-sm leading-relaxed text-gray-600">
+							Discover products from sellers across Indonesia.
+							Compare, pick your favorite store, and check out
+							securely.
+						</p>
+						<div className="mt-5 flex flex-wrap gap-3">
+							<Link to="/products">
+								<Button size="lg">Start shopping</Button>
+							</Link>
+							<Link to="/register">
+								<Button variant="outline" size="lg">
+									Sign up free
+								</Button>
+							</Link>
+						</div>
+					</div>
+				</div>
+
+				<div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 pb-8">
+					<span className="text-sm text-gray-500">Categories:</span>
+					{categories.map((category) => (
+						<Link
+							key={category}
+							to="/products"
+							className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 hover:border-brand-600 hover:text-brand-700"
+						>
+							{category}
+						</Link>
+					))}
+				</div>
+			</section>
+
+			<section className="border-t border-gray-200 bg-white">
+				<div className="mx-auto max-w-6xl px-4 py-10">
+					<div className="mb-5 flex items-baseline justify-between">
+						<h2 className="text-xl font-medium text-gray-900">
+							Featured products
+						</h2>
+						<Link
+							to="/products"
+							className="text-sm text-brand-600 hover:underline"
+						>
+							See all
+						</Link>
+					</div>
+					<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+						{featuredProducts.map((product) => (
+							<ProductCard key={product.id} product={product} />
+						))}
+					</div>
+				</div>
+			</section>
+
+			<section className="mx-auto max-w-6xl px-4 py-12">
+				<h2 className="text-xl font-medium text-gray-900">
+					What people say
+				</h2>
+				<p className="mt-1 max-w-2xl text-sm text-gray-600">
+					Reviews about the SEAPEDIA app experience — anyone can write
+					one, no purchase required.
+				</p>
+
+				<div className="mt-6 grid gap-6 lg:grid-cols-2">
+					<div className="space-y-3">
+						{reviews.map((review) => (
+							<Card key={review.id} className="p-4">
+								<div className="mb-1 flex items-center justify-between">
+									<span className="text-sm font-medium text-gray-900">
+										{review.name}
+									</span>
+									<StarRating value={review.rating} />
+								</div>
+								{/* React escapes text by default, so comments render safely (XSS handled formally in Level 7). */}
+								<p className="text-sm leading-relaxed text-gray-600">
+									{review.comment}
+								</p>
+							</Card>
+						))}
+					</div>
+
+					<Card className="h-fit p-5">
+						<h3 className="text-base font-medium text-gray-900">
+							Write a review
+						</h3>
+						<form
+							onSubmit={handleSubmit}
+							className="mt-4 space-y-3"
+						>
+							<div>
+								<label
+									htmlFor="review-name"
+									className="text-sm text-gray-700"
+								>
+									Your name
+								</label>
+								<Input
+									id="review-name"
+									value={name}
+									onChange={(e) => setName(e.target.value)}
+									placeholder="e.g. Andi"
+									className="mt-1"
+									required
+								/>
+							</div>
+							<div>
+								<span className="text-sm text-gray-700">
+									Rating
+								</span>
+								<div className="mt-1">
+									<StarRating
+										value={rating}
+										onChange={setRating}
+										size={24}
+									/>
+								</div>
+							</div>
+							<div>
+								<label
+									htmlFor="review-comment"
+									className="text-sm text-gray-700"
+								>
+									Comment
+								</label>
+								<Textarea
+									id="review-comment"
+									value={comment}
+									onChange={(e) => setComment(e.target.value)}
+									placeholder="Tell us about your experience using SEAPEDIA…"
+									rows={3}
+									className="mt-1"
+									required
+								/>
+							</div>
+							<Button type="submit">Submit review</Button>
+						</form>
+					</Card>
+				</div>
+			</section>
+		</main>
+	);
 }

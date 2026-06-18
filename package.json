@@ -1,0 +1,10 @@
+{
+  "name": "seapedia",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm -r --parallel run dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint"
+  }
+}

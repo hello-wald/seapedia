@@ -15,11 +15,11 @@ import {
 
 export function meta(_: Route.MetaArgs) {
 	return [
-		{ title: "SEAPEDIA" },
+		{ title: "SEApedia" },
 		{
 			name: "description",
 			content:
-				"Shop from sellers across Indonesia on SEAPEDIA — a multi-store marketplace for buyers, sellers, and drivers.",
+				"Shop from sellers across Indonesia on SEApedia — a multi-store marketplace for buyers, sellers, and drivers.",
 		},
 	];
 }
@@ -119,7 +119,7 @@ export default function Home() {
 						What people say
 					</h2>
 					<p className="mt-1 max-w-2xl text-sm text-muted">
-						Reviews about the SEAPEDIA app experience — anyone can
+						Reviews about the SEApedia app experience — anyone can
 						write one, no purchase required.
 					</p>
 

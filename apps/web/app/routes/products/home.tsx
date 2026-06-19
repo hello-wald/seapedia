@@ -5,7 +5,7 @@ import { ProductCard } from "../../components/ui/product-card";
 
 export function meta(_: Route.MetaArgs) {
 	return [
-		{ title: "Products · SEAPEDIA" },
+		{ title: "Products · SEApedia" },
 		{
 			name: "description",
 			content: "Browse products from sellers across Indonesia.",

@@ -10,8 +10,8 @@ export function meta({ params }: Route.MetaArgs) {
 	return [
 		{
 			title: product
-				? `${product.name} · SEAPEDIA`
-				: "Product · SEAPEDIA",
+				? `${product.name} · SEApedia`
+				: "Product · SEApedia",
 		},
 	];
 }

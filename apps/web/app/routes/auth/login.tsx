@@ -3,7 +3,7 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 
 export function meta() {
-	return [{ title: "Log in · SEAPEDIA" }];
+	return [{ title: "Log in · SEApedia" }];
 }
 
 export default function Login() {

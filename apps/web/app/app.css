@@ -7,17 +7,48 @@
 
 	--color-brand-50: #e8f9ff;
 	--color-brand-100: #99e6fd;
-	--color-brand-600: #67d9fb;
-	--color-brand-700: #01c0f9;
-	--color-brand-900: #0288b5;
+	--color-brand-300: #34cdfa;
+	--color-brand-500: #01c0f9;
+	--color-brand-600: #04a5f5;
+	--color-brand-700: #0169a8;
+	--color-brand-900: #05445e;
 
 	--color-accent-50: #fff7ed;
 	--color-accent-100: #ffedd5;
 	--color-accent-500: #f97316;
 	--color-accent-600: #ea580c;
+
+	--color-surface: #ffffff;
+	--color-surface-subtle: #f4fbff;
+
+	--color-muted: #6b7280;
+	--color-muted-subtle: #9ca3af;
+
+	--color-border: #e5e7eb;
+	--color-border-strong: #d1d5db;
+
+	--shadow-card:
+		0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.07);
+	--shadow-md: 0 4px 12px 0 rgb(0 0 0 / 0.1);
+}
+
+@utility bg-brand-gradient {
+	background-image: linear-gradient(135deg, #34cdfa 0%, #e8d9f1 100%);
+}
+
+* {
+	@apply outline-none;
 }
 
 html,
 body {
 	@apply bg-gray-50 text-gray-900;
+}
+
+.border,
+.border-b,
+.border-t,
+.border-l,
+.border-r {
+	@apply border-border;
 }

@@ -15,7 +15,7 @@ import {
 
 export function meta(_: Route.MetaArgs) {
 	return [
-		{ title: "SEAPEDIA · One marketplace, thousands of stores" },
+		{ title: "SEAPEDIA" },
 		{
 			name: "description",
 			content:
@@ -48,9 +48,9 @@ export default function Home() {
 	}
 
 	return (
-		<main className="flex-1 pt-16">
-			<section className="bg-brand-gradient">
-				<div className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-10 lg:grid-cols-[1.4fr_1fr]">
+		<main>
+			<section>
+				<div className="mx-auto grid container items-center gap-8 px-4 py-10 lg:grid-cols-[1.8fr_1fr]">
 					<div>
 						<span className="mb-3 inline-block rounded-md bg-brand-100 px-3 py-1 text-xs font-medium text-brand-700">
 							One marketplace · thousands of stores
@@ -75,9 +75,10 @@ export default function Home() {
 							</Link>
 						</div>
 					</div>
+					<img src="/hero.png" />
 				</div>
 
-				<div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 pb-8">
+				<div className="mx-auto flex container flex-wrap items-center gap-2 px-4 pb-8">
 					<span className="text-sm text-gray-500">Categories:</span>
 					{categories.map((category) => (
 						<Link
@@ -91,15 +92,15 @@ export default function Home() {
 				</div>
 			</section>
 
-			<section className="border-t border-gray-200 bg-white">
-				<div className="mx-auto max-w-6xl px-4 py-10">
+			<section className="border-t bg-surface">
+				<div className="mx-auto container px-4 py-10">
 					<div className="mb-5 flex items-baseline justify-between">
 						<h2 className="text-xl font-medium text-gray-900">
 							Featured products
 						</h2>
 						<Link
 							to="/products"
-							className="text-sm text-brand-600 hover:underline"
+							className="text-sm text-brand-700 hover:underline"
 						>
 							See all
 						</Link>
@@ -112,89 +113,94 @@ export default function Home() {
 				</div>
 			</section>
 
-			<section className="mx-auto max-w-6xl px-4 py-12">
-				<h2 className="text-xl font-medium text-gray-900">
-					What people say
-				</h2>
-				<p className="mt-1 max-w-2xl text-sm text-gray-600">
-					Reviews about the SEAPEDIA app experience — anyone can write
-					one, no purchase required.
-				</p>
+			<section className="border-t">
+				<div className="mx-auto container px-4 py-12">
+					<h2 className="text-xl font-medium text-gray-900">
+						What people say
+					</h2>
+					<p className="mt-1 max-w-2xl text-sm text-muted">
+						Reviews about the SEAPEDIA app experience — anyone can
+						write one, no purchase required.
+					</p>
 
-				<div className="mt-6 grid gap-6 lg:grid-cols-2">
-					<div className="space-y-3">
-						{reviews.map((review) => (
-							<Card key={review.id} className="p-4">
-								<div className="mb-1 flex items-center justify-between">
-									<span className="text-sm font-medium text-gray-900">
-										{review.name}
-									</span>
-									<StarRating value={review.rating} />
-								</div>
-								{/* React escapes text by default, so comments render safely (XSS handled formally in Level 7). */}
-								<p className="text-sm leading-relaxed text-gray-600">
-									{review.comment}
-								</p>
-							</Card>
-						))}
-					</div>
+					<div className="mt-6 grid gap-6 lg:grid-cols-2">
+						<div className="space-y-3">
+							{reviews.map((review) => (
+								<Card key={review.id} className="p-4">
+									<div className="mb-1 flex items-center justify-between">
+										<span className="text-sm font-medium text-gray-900">
+											{review.name}
+										</span>
+										<StarRating value={review.rating} />
+									</div>
+									<p className="text-sm leading-relaxed text-muted">
+										{review.comment}
+									</p>
+								</Card>
+							))}
+						</div>
 
-					<Card className="h-fit p-5">
-						<h3 className="text-base font-medium text-gray-900">
-							Write a review
-						</h3>
-						<form
-							onSubmit={handleSubmit}
-							className="mt-4 space-y-3"
-						>
-							<div>
-								<label
-									htmlFor="review-name"
-									className="text-sm text-gray-700"
-								>
-									Your name
-								</label>
-								<Input
-									id="review-name"
-									value={name}
-									onChange={(e) => setName(e.target.value)}
-									placeholder="e.g. Andi"
-									className="mt-1"
-									required
-								/>
-							</div>
-							<div>
-								<span className="text-sm text-gray-700">
-									Rating
-								</span>
-								<div className="mt-1">
-									<StarRating
-										value={rating}
-										onChange={setRating}
-										size={24}
+						<Card className="h-fit p-5">
+							<h3 className="text-base font-medium text-gray-900">
+								Write a review
+							</h3>
+							<form
+								onSubmit={handleSubmit}
+								className="mt-4 space-y-3"
+							>
+								<div>
+									<label
+										htmlFor="review-name"
+										className="text-sm text-gray-700"
+									>
+										Your name
+									</label>
+									<Input
+										id="review-name"
+										value={name}
+										onChange={(e) =>
+											setName(e.target.value)
+										}
+										placeholder="e.g. Andi"
+										className="mt-1"
+										required
 									/>
 								</div>
-							</div>
-							<div>
-								<label
-									htmlFor="review-comment"
-									className="text-sm text-gray-700"
-								>
-									Comment
-								</label>
-								<Textarea
-									id="review-comment"
-									value={comment}
-									onChange={(e) => setComment(e.target.value)}
-									placeholder="Tell us about your experience using SEAPEDIA…"
-									rows={3}
-									className="mt-1"
-									required
-								/>
-							</div>
-							<Button type="submit">Submit review</Button>
-						</form>
-					</Card>
+								<div>
+									<span className="text-sm text-gray-700">
+										Rating
+									</span>
+									<div className="mt-1">
+										<StarRating
+											value={rating}
+											onChange={setRating}
+											size={24}
+										/>
+									</div>
+								</div>
+								<div>
+									<label
+										htmlFor="review-comment"
+										className="text-sm text-gray-700"
+									>
+										Comment
+									</label>
+									<Textarea
+										id="review-comment"
+										value={comment}
+										onChange={(e) =>
+											setComment(e.target.value)
+										}
+										placeholder="Tell us about your experience using SEAPEDIA…"
+										rows={3}
+										className="mt-1"
+										required
+									/>
+								</div>
+								<Button type="submit">Submit review</Button>
+							</form>
+						</Card>
+					</div>
 				</div>
 			</section>
 		</main>

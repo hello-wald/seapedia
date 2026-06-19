@@ -6,7 +6,7 @@ import {
   Shirt,
   Coffee,
 } from "lucide-react";
-import type { Product } from "../components/ui/product-card";
+import type { ProductDisplay as Product } from "./products";
 
 export const featuredProducts: Product[] = [
   {
@@ -51,7 +51,7 @@ export const featuredProducts: Product[] = [
     rating: 4.7,
     sold: "430",
     icon: Sprout,
-    tone: "bg-brand-100 text-brand-700",
+    tone: "bg-brand-100 text-brand-900",
   },
   {
     id: "p5",

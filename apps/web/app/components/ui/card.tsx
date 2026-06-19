@@ -1,13 +1,13 @@
 import { type HTMLAttributes } from "react";
 
 export function Card({
-  className = "",
-  ...props
+	className = "",
+	...props
 }: HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={`rounded-xl border border-gray-200 bg-white ${className}`}
-      {...props}
-    />
-  );
+	return (
+		<div
+			className={`rounded-xl border bg-surface ${className}`}
+			{...props}
+		/>
+	);
 }

@@ -13,6 +13,7 @@ import { Navbar } from "./components/ui/navbar";
 import { Footer } from "./components/ui/footer";
 
 export const links: Route.LinksFunction = () => [
+	{ rel: "icon", href: "/favicon.png", sizes: "32x32" },
 	{ rel: "preconnect", href: "https://fonts.googleapis.com" },
 	{
 		rel: "preconnect",
@@ -39,7 +40,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			</head>
 			<body className="flex min-h-screen flex-col">
 				<Navbar />
-				<div>{children}</div>
+				<div className="flex flex-1 flex-col pt-28 md:pt-16">
+					{children}
+				</div>
 				<Footer />
 				<ScrollRestoration />
 				<Scripts />
@@ -69,7 +72,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 	}
 
 	return (
-		<main className="pt-16 p-4 container mx-auto">
+		<main className="p-4 container mx-auto">
 			<h1>{message}</h1>
 			<p>{details}</p>
 			{stack && (

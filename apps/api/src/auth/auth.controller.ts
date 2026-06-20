@@ -8,10 +8,10 @@ import {
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { LoginDto, RegisterDto, SetActiveRoleDto } from "./dto/auth.dto";
-import { JwtAuthGuard } from "./jwt-auth.guard";
-import { RolesGuard } from "./roles.guard";
-import { Roles } from "./roles.decorator";
-import { CurrentUser } from "./current-user.decorator";
+import { JwtAuthGuard } from "./guard/jwt-auth.guard";
+import { RolesGuard } from "./guard/roles.guard";
+import { Roles } from "./decorator/roles.decorator";
+import { CurrentUser } from "./decorator/current-user.decorator";
 import type { JwtPayload } from "./jwt.types";
 
 @Controller("auth")

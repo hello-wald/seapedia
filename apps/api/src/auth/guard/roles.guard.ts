@@ -7,8 +7,8 @@ import {
 import { Reflector } from "@nestjs/core";
 import type { Request } from "express";
 import type { Role } from "@seapedia/shared";
-import { ROLES_KEY } from "./roles.decorator";
-import type { JwtPayload } from "./jwt.types";
+import { ROLES_KEY } from "../decorator/roles.decorator";
+import type { JwtPayload } from "../jwt.types";
 
 @Injectable()
 export class RolesGuard implements CanActivate {

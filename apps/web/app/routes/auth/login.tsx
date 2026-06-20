@@ -1,12 +1,45 @@
-import { Link } from "react-router";
+import { Form, Link, useActionData, useNavigation } from "react-router";
+import { loginSchema } from "@seapedia/shared";
+import type { Route } from "./+types/login";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
+import { login } from "~/.server/auth";
+import { createUserSession } from "~/.server/session";
 
 export function meta() {
 	return [{ title: "Log in · SEApedia" }];
 }
 
+export async function action({ request }: Route.ActionArgs) {
+	const formData = await request.formData();
+	const parsed = loginSchema.safeParse({
+		email: formData.get("email"),
+		password: formData.get("password"),
+	});
+
+	if (!parsed.success) {
+		return {
+			fieldErrors: parsed.error.flatten().fieldErrors,
+			formError: null,
+		};
+	}
+
+	const result = await login(parsed.data);
+	if (!result.ok) {
+		return { fieldErrors: null, formError: result.error };
+	}
+
+	const { user, accessToken } = result.data;
+	const redirectTo = user.activeRole ? "/dashboard" : "/select-role";
+	return createUserSession(accessToken, redirectTo);
+}
+
 export default function Login() {
+	const actionData = useActionData<typeof action>();
+	const navigation = useNavigation();
+	const submitting = navigation.state === "submitting";
+	const fieldErrors = actionData?.fieldErrors;
+
 	return (
 		<main className="flex items-center justify-center px-4 py-20">
 			<div className="w-full max-w-sm">
@@ -26,7 +59,13 @@ export default function Login() {
 					</p>
 				</div>
 
-				<form className="space-y-4">
+				<Form method="post" className="space-y-4">
+					{actionData?.formError && (
+						<p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+							{actionData.formError}
+						</p>
+					)}
+
 					<div>
 						<label
 							htmlFor="email"
@@ -42,6 +81,11 @@ export default function Login() {
 							autoComplete="email"
 							required
 						/>
+						{fieldErrors?.email && (
+							<p className="mt-1 text-xs text-red-600">
+								{fieldErrors.email[0]}
+							</p>
+						)}
 					</div>
 
 					<div>
@@ -64,12 +108,22 @@ export default function Login() {
 							autoComplete="current-password"
 							required
 						/>
+						{fieldErrors?.password && (
+							<p className="mt-1 text-xs text-red-600">
+								{fieldErrors.password[0]}
+							</p>
+						)}
 					</div>
 
-					<Button type="submit" className="mt-2 w-full" size="lg">
-						Log in
+					<Button
+						type="submit"
+						className="mt-2 w-full"
+						size="lg"
+						disabled={submitting}
+					>
+						{submitting ? "Logging in…" : "Log in"}
 					</Button>
-				</form>
+				</Form>
 
 				<p className="mt-6 text-center text-sm text-muted">
 					Don't have an account?{" "}

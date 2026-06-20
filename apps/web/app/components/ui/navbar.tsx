@@ -1,16 +1,7 @@
-import { Link, Form, NavLink } from "react-router";
+import { Link, Form, NavLink, useRouteLoaderData } from "react-router";
 import { Search, ShoppingCart } from "lucide-react";
 import { Button } from "./button";
-
-export interface NavUser {
-	name: string;
-	activeRole: string | null;
-	roles: string[];
-}
-
-interface NavbarProps {
-	user?: NavUser | null;
-}
+import type { loader as rootLoader } from "~/root";
 
 function SearchForm({ className = "" }: { className?: string }) {
 	return (
@@ -31,7 +22,10 @@ function SearchForm({ className = "" }: { className?: string }) {
 	);
 }
 
-export function Navbar({ user = null }: NavbarProps) {
+export function Navbar() {
+	const data = useRouteLoaderData<typeof rootLoader>("root");
+	const user = data?.user ?? null;
+
 	return (
 		<header className="fixed top-0 z-20 w-full bg-surface border-b">
 			<div className="mx-auto container px-4 py-3">

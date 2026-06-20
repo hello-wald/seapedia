@@ -3,6 +3,7 @@ import { loginSchema } from "@seapedia/shared";
 import type { Route } from "./+types/login";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
+import { ErrorBanner } from "../../components/ui/form-banner";
 import { login } from "~/.server/auth";
 import { createUserSession } from "~/.server/session";
 
@@ -19,14 +20,13 @@ export async function action({ request }: Route.ActionArgs) {
 
 	if (!parsed.success) {
 		return {
-			fieldErrors: parsed.error.flatten().fieldErrors,
-			formError: null,
+			formError: parsed.error.issues.map((i) => i.message).join(", "),
 		};
 	}
 
 	const result = await login(parsed.data);
 	if (!result.ok) {
-		return { fieldErrors: null, formError: result.error };
+		return { formError: result.error };
 	}
 
 	const { user, accessToken } = result.data;
@@ -38,7 +38,6 @@ export default function Login() {
 	const actionData = useActionData<typeof action>();
 	const navigation = useNavigation();
 	const submitting = navigation.state === "submitting";
-	const fieldErrors = actionData?.fieldErrors;
 
 	return (
 		<main className="flex items-center justify-center px-4 py-20">
@@ -61,9 +60,7 @@ export default function Login() {
 
 				<Form method="post" className="space-y-4">
 					{actionData?.formError && (
-						<p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
-							{actionData.formError}
-						</p>
+						<ErrorBanner>{actionData.formError}</ErrorBanner>
 					)}
 
 					<div>
@@ -81,11 +78,6 @@ export default function Login() {
 							autoComplete="email"
 							required
 						/>
-						{fieldErrors?.email && (
-							<p className="mt-1 text-xs text-red-600">
-								{fieldErrors.email[0]}
-							</p>
-						)}
 					</div>
 
 					<div>
@@ -108,11 +100,6 @@ export default function Login() {
 							autoComplete="current-password"
 							required
 						/>
-						{fieldErrors?.password && (
-							<p className="mt-1 text-xs text-red-600">
-								{fieldErrors.password[0]}
-							</p>
-						)}
 					</div>
 
 					<Button

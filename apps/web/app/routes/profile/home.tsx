@@ -46,19 +46,10 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
 			</header>
 
 			<section className="mb-6 rounded-xl border bg-surface p-5">
-				<div className="flex items-center justify-between">
-					<h2 className="text-sm font-medium text-gray-700">
-						Roles you own
-					</h2>
-					{user.activeRole && (
-						<div className="flex items-center gap-1.5 md:hidden">
-							<span className="text-xs text-muted">Active:</span>
-							<span className="rounded-md bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-900">
-								{ROLE_LABEL[user.activeRole]}
-							</span>
-						</div>
-					)}
-				</div>
+				<h2 className="text-sm font-medium text-gray-700">
+					Roles you own
+				</h2>
+
 				<div className="mt-3 flex flex-wrap gap-2">
 					{user.roles.map((role) => (
 						<span

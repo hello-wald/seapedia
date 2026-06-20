@@ -12,13 +12,14 @@ async function parseError(res: Response): Promise<string> {
 	}
 }
 
-export async function postJson<T>(
+async function sendJson<T>(
+	method: string,
 	path: string,
 	body: unknown,
 	token?: string,
 ): Promise<ApiResult<T>> {
 	const res = await fetch(`${API_URL}${path}`, {
-		method: "POST",
+		method,
 		headers: {
 			"Content-Type": "application/json",
 			...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -29,6 +30,12 @@ export async function postJson<T>(
 	return { ok: true, data: (await res.json()) as T };
 }
 
+export const postJson = <T>(path: string, body: unknown, token?: string) =>
+	sendJson<T>("POST", path, body, token);
+
+export const putJson = <T>(path: string, body: unknown, token?: string) =>
+	sendJson<T>("PUT", path, body, token);
+
 export async function getJson<T>(
 	path: string,
 	token?: string,
@@ -37,5 +44,6 @@ export async function getJson<T>(
 		headers: token ? { Authorization: `Bearer ${token}` } : {},
 	});
 	if (!res.ok) return null;
-	return (await res.json()) as T;
+	const text = await res.text();
+	return text ? (JSON.parse(text) as T) : null;
 }

@@ -4,6 +4,7 @@ import type { Route } from "./+types/select-role";
 import { requireUser, setActiveRole } from "~/.server/auth";
 import { createUserSession } from "~/.server/session";
 import { tokenContext, userContext } from "~/.server/middleware";
+import { ErrorBanner } from "../components/ui/form-banner";
 
 const ROLE_COPY: Record<string, { label: string; description: string }> = {
 	BUYER: { label: "Buyer", description: "Shop, manage your cart and orders" },
@@ -67,9 +68,7 @@ export default function SelectRole({ loaderData }: Route.ComponentProps) {
 				</div>
 
 				{actionData?.error && (
-					<p className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
-						{actionData.error}
-					</p>
+					<ErrorBanner className="mb-4">{actionData.error}</ErrorBanner>
 				)}
 
 				<div className="space-y-3">
@@ -101,7 +100,7 @@ export default function SelectRole({ loaderData }: Route.ComponentProps) {
 											{copy.description}
 										</span>
 									</span>
-									<span className="text-sm font-medium text-brand-700">
+									<span className="text-sm font-medium text-brand-600">
 										{isPending
 											? "Switching…"
 											: isActive

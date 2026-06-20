@@ -53,7 +53,7 @@ function UserAvatar({ name }: { name: string }) {
 		.join("")
 		.toUpperCase();
 	return (
-		<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700">
+		<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-gradient text-xs font-semibold text-white border">
 			{initials}
 		</div>
 	);
@@ -98,7 +98,7 @@ export function Navbar() {
 							<DropdownMenu>
 								<DropdownMenuTrigger className="flex items-center gap-2 rounded-md px-2 py-1 text-sm transition-colors hover:bg-gray-100 focus:outline-none cursor-pointer">
 									<UserAvatar name={user.name} />
-									<span className="hidden sm:inline">
+									<span className="hidden sm:inline font-medium">
 										{user.name}
 									</span>
 									<ChevronDown
@@ -118,7 +118,7 @@ export function Navbar() {
 												{user.name}
 											</p>
 											{user.activeRole ? (
-												<span className="rounded-md bg-brand-700 px-2 py-0.5 text-xs text-white">
+												<span className="rounded-md bg-brand-100 px-2 py-0.5 text-xs text-brand-900 font-medium">
 													{ROLE_LABEL[
 														user.activeRole
 													] ?? user.activeRole}

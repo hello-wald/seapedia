@@ -4,7 +4,8 @@ import { Button } from "./button";
 
 export interface NavUser {
 	name: string;
-	activeRole: string;
+	activeRole: string | null;
+	roles: string[];
 }
 
 interface NavbarProps {
@@ -69,12 +70,33 @@ export function Navbar({ user = null }: NavbarProps) {
 							>
 								<ShoppingCart size={20} aria-hidden="true" />
 							</Link>
-							<span className="hidden rounded-md bg-brand-700 px-2 py-1 text-xs sm:inline">
-								{user.activeRole}
-							</span>
+							<Link to="/dashboard" className="hidden sm:inline">
+								{user.activeRole ? (
+									<span className="rounded-md bg-brand-700 px-2 py-1 text-xs text-white">
+										{user.activeRole}
+									</span>
+								) : (
+									<span className="rounded-md border border-brand-500 px-2 py-1 text-xs text-brand-700">
+										Select role
+									</span>
+								)}
+							</Link>
+							{user.roles.length > 1 && (
+								<Link
+									to="/select-role"
+									className="hidden text-xs text-brand-700 hover:underline sm:inline"
+								>
+									Switch
+								</Link>
+							)}
 							<span className="hidden text-sm sm:inline">
 								{user.name}
 							</span>
+							<Form method="post" action="/logout">
+								<Button variant="ghost" size="sm" type="submit">
+									Log out
+								</Button>
+							</Form>
 						</div>
 					) : (
 						<div className="ml-auto flex shrink-0 items-center gap-2">

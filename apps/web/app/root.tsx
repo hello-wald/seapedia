@@ -5,12 +5,19 @@ import {
 	Outlet,
 	Scripts,
 	ScrollRestoration,
+	useRouteLoaderData,
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
 import { Navbar } from "./components/ui/navbar";
 import { Footer } from "./components/ui/footer";
+import { getUser } from "./lib/auth.server";
+
+export async function loader({ request }: Route.LoaderArgs) {
+	const user = await getUser(request);
+	return { user };
+}
 
 export const links: Route.LinksFunction = () => [
 	{ rel: "icon", href: "/favicon.png", sizes: "32x32" },
@@ -27,6 +34,12 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+	const data = useRouteLoaderData<typeof loader>("root");
+	const user = data?.user ?? null;
+	const navUser = user
+		? { name: user.name, activeRole: user.activeRole, roles: user.roles }
+		: null;
+
 	return (
 		<html lang="en">
 			<head>
@@ -39,7 +52,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body className="flex min-h-screen flex-col">
-				<Navbar />
+				<Navbar user={navUser} />
 				<div className="flex flex-1 flex-col pt-28 md:pt-16">
 					{children}
 				</div>

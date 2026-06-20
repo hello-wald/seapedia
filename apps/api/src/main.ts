@@ -2,21 +2,21 @@ import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { ZodValidationPipe } from "nestjs-zod";
 import { AppModule } from "./app.module";
+import { Logger } from "@nestjs/common";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+	const app = await NestFactory.create(AppModule);
 
-  app.setGlobalPrefix("api");
-  app.useGlobalPipes(new ZodValidationPipe());
-  app.enableCors({
-    origin: process.env.WEB_ORIGIN ?? "http://localhost:5173",
-    credentials: true,
-  });
+	app.setGlobalPrefix("api");
+	app.useGlobalPipes(new ZodValidationPipe());
+	app.enableCors({
+		origin: process.env.WEB_ORIGIN ?? "http://localhost:5173",
+		credentials: true,
+	});
 
-  const port = Number(process.env.PORT ?? 3000);
-  await app.listen(port);
-  // eslint-disable-next-line no-console
-  console.log(`🚀 API running on http://localhost:${port}/api`);
+	const port = Number(process.env.PORT ?? 3000);
+	await app.listen(port);
+	Logger.log(`🚀 API running on http://localhost:${port}/api`);
 }
 
 void bootstrap();

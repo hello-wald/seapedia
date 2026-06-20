@@ -55,7 +55,7 @@ export async function action({ request }: Route.ActionArgs) {
 	}
 
 	const { user, accessToken } = result.data;
-	const redirectTo = user.activeRole ? "/dashboard" : "/select-role";
+	const redirectTo = user.activeRole ? "/profile" : "/select-role";
 	return createUserSession(accessToken, redirectTo);
 }
 
@@ -170,41 +170,43 @@ export default function Register() {
 							I want to join as
 						</p>
 						<div className="grid grid-cols-1 gap-2">
-							{roleOptions.map(({ value, label, description }) => {
-								const active = selected.includes(value);
-								return (
-									<button
-										key={value}
-										type="button"
-										aria-pressed={active}
-										onClick={() => toggle(value)}
-										className={`flex items-start gap-3 rounded-lg border p-3 text-left transition-colors ${
-											active
-												? "border-brand-500 bg-brand-50 ring-2 ring-brand-500/20"
-												: "border-border bg-surface hover:border-brand-300"
-										}`}
-									>
-										<span
-											className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] ${
+							{roleOptions.map(
+								({ value, label, description }) => {
+									const active = selected.includes(value);
+									return (
+										<button
+											key={value}
+											type="button"
+											aria-pressed={active}
+											onClick={() => toggle(value)}
+											className={`flex items-start gap-3 rounded-lg border p-3 text-left transition-colors ${
 												active
-													? "border-brand-500 bg-brand-500 text-white"
-													: "border-gray-300"
+													? "border-brand-500 bg-brand-50 ring-2 ring-brand-500/20"
+													: "border-border bg-surface hover:border-brand-300"
 											}`}
-											aria-hidden="true"
 										>
-											{active ? "✓" : ""}
-										</span>
-										<span>
-											<span className="block text-sm font-medium text-gray-900">
-												{label}
+											<span
+												className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] ${
+													active
+														? "border-brand-500 bg-brand-500 text-white"
+														: "border-gray-300"
+												}`}
+												aria-hidden="true"
+											>
+												{active ? "✓" : ""}
 											</span>
-											<span className="mt-0.5 block text-xs text-muted">
-												{description}
+											<span>
+												<span className="block text-sm font-medium text-gray-900">
+													{label}
+												</span>
+												<span className="mt-0.5 block text-xs text-muted">
+													{description}
+												</span>
 											</span>
-										</span>
-									</button>
-								);
-							})}
+										</button>
+									);
+								},
+							)}
 						</div>
 						{selected.map((role) => (
 							<input

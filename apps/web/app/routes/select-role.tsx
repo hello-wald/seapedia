@@ -15,7 +15,7 @@ const ROLE_COPY: Record<string, { label: string; description: string }> = {
 // Only allow redirecting to in-app paths after switching.
 function safeNext(value: FormDataEntryValue | string | null): string {
 	const next = typeof value === "string" ? value : "";
-	return next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
+	return next.startsWith("/") && !next.startsWith("//") ? next : "/profile";
 }
 
 export function meta() {
@@ -26,7 +26,7 @@ export function loader({ request, context }: Route.LoaderArgs) {
 	const user = requireUser(context.get(userContext));
 	const selectable = user.roles.filter((r) => r !== "ADMIN");
 	if (user.roles.includes("ADMIN") || selectable.length <= 1) {
-		throw redirect("/dashboard");
+		throw redirect("/profile");
 	}
 	const next = safeNext(new URL(request.url).searchParams.get("next"));
 	return { roles: selectable, activeRole: user.activeRole, next };

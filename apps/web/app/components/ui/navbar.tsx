@@ -1,7 +1,30 @@
-import { Link, Form, NavLink, useRouteLoaderData } from "react-router";
-import { Search, ShoppingCart } from "lucide-react";
+import {
+	Link,
+	Form,
+	NavLink,
+	useRouteLoaderData,
+	useNavigate,
+	useSubmit,
+} from "react-router";
+import {
+	Search,
+	ShoppingCart,
+	ChevronDown,
+	User,
+	ArrowLeftRight,
+	LogOut,
+} from "lucide-react";
 import { Button } from "./button";
+import {
+	DropdownMenu,
+	DropdownMenuTrigger,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuGroup,
+} from "./dropdown-menu";
 import type { loader as rootLoader } from "~/root";
+import { ROLE_LABEL } from "~/lib/constants";
 
 function SearchForm({ className = "" }: { className?: string }) {
 	return (
@@ -16,19 +39,35 @@ function SearchForm({ className = "" }: { className?: string }) {
 				name="q"
 				placeholder="Search products…"
 				aria-label="Search products"
-				className="ml-2 w-full bg-transparent text-sm text-gray-900 outline-none placeholder:text-gray-400 "
+				className="ml-2 w-full bg-transparent text-sm text-gray-900 outline-none placeholder:text-gray-400"
 			/>
 		</Form>
+	);
+}
+
+function UserAvatar({ name }: { name: string }) {
+	const initials = name
+		.split(" ")
+		.slice(0, 2)
+		.map((w) => w[0])
+		.join("")
+		.toUpperCase();
+	return (
+		<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700">
+			{initials}
+		</div>
 	);
 }
 
 export function Navbar() {
 	const data = useRouteLoaderData<typeof rootLoader>("root");
 	const user = data?.user ?? null;
+	const navigate = useNavigate();
+	const submit = useSubmit();
 
 	return (
 		<header className="fixed top-0 z-20 w-full bg-surface border-b">
-			<div className="mx-auto container px-4 py-3">
+			<div className="mx-auto max-w-6xl px-4 py-3">
 				<div className="flex items-center gap-3">
 					<Link
 						to="/"
@@ -42,18 +81,9 @@ export function Navbar() {
 						<NavLink to="/products" end className="text-sm">
 							Products
 						</NavLink>
-						{/* <NavLink to="/trending" end className="text-sm">
-							Trending Concerts
-						</NavLink>
-						<NavLink to="/concerts" className="text-sm">
-							All Concerts
-						</NavLink>
-						<NavLink to="/account" className="text-sm">
-							Account
-						</NavLink> */}
 					</nav>
 
-					<SearchForm className="hidden flex-1 md:flex md:max-w-md " />
+					<SearchForm className="hidden flex-1 md:flex md:max-w-md" />
 
 					{user ? (
 						<div className="ml-auto flex items-center gap-3">
@@ -64,33 +94,86 @@ export function Navbar() {
 							>
 								<ShoppingCart size={20} aria-hidden="true" />
 							</Link>
-							<Link to="/dashboard" className="hidden sm:inline">
-								{user.activeRole ? (
-									<span className="rounded-md bg-brand-700 px-2 py-1 text-xs text-white">
-										{user.activeRole}
+
+							<DropdownMenu>
+								<DropdownMenuTrigger className="flex items-center gap-2 rounded-md px-2 py-1 text-sm transition-colors hover:bg-gray-100 focus:outline-none cursor-pointer">
+									<UserAvatar name={user.name} />
+									<span className="hidden sm:inline">
+										{user.name}
 									</span>
-								) : (
-									<span className="rounded-md border border-brand-500 px-2 py-1 text-xs text-brand-700">
-										Select role
-									</span>
-								)}
-							</Link>
-							{user.roles.length > 1 && (
-								<Link
-									to="/select-role"
-									className="hidden text-xs text-brand-700 hover:underline sm:inline"
+									<ChevronDown
+										size={14}
+										className="text-gray-400"
+									/>
+								</DropdownMenuTrigger>
+
+								<DropdownMenuContent
+									align="end"
+									className="w-auto! min-w-52"
 								>
-									Switch
-								</Link>
-							)}
-							<span className="hidden text-sm sm:inline">
-								{user.name}
-							</span>
-							<Form method="post" action="/logout">
-								<Button variant="ghost" size="sm" type="submit">
-									Log out
-								</Button>
-							</Form>
+									{/* User info header */}
+									<div className="px-3 py-2">
+										<div className="flex items-center gap-2">
+											<p className="font-semibold text-gray-900 text-sm">
+												{user.name}
+											</p>
+											{user.activeRole ? (
+												<span className="rounded-md bg-brand-700 px-2 py-0.5 text-xs text-white">
+													{ROLE_LABEL[
+														user.activeRole
+													] ?? user.activeRole}
+												</span>
+											) : (
+												<span className="rounded-md border border-brand-500 px-2 py-0.5 text-xs text-brand-700">
+													No role
+												</span>
+											)}
+										</div>
+										<p className="text-xs text-muted mt-0.5">
+											{user.email}
+										</p>
+									</div>
+
+									<DropdownMenuSeparator />
+
+									<DropdownMenuGroup>
+										<DropdownMenuItem
+											className=""
+											onClick={() => navigate("/profile")}
+										>
+											<User size={12} />
+											Profile
+										</DropdownMenuItem>
+
+										{user.roles.length > 1 && (
+											<DropdownMenuItem
+												className=""
+												onClick={() =>
+													navigate("/select-role")
+												}
+											>
+												<ArrowLeftRight size={12} />
+												Switch role
+											</DropdownMenuItem>
+										)}
+									</DropdownMenuGroup>
+
+									<DropdownMenuSeparator />
+
+									<DropdownMenuItem
+										className="text-red-500 focus:bg-red-50 focus:text-red-500!"
+										onClick={() =>
+											submit(null, {
+												method: "post",
+												action: "/logout",
+											})
+										}
+									>
+										<LogOut size={12} color="#fb2c36" />
+										Log out
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
 						</div>
 					) : (
 						<div className="ml-auto flex shrink-0 items-center gap-2">

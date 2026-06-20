@@ -54,17 +54,13 @@ export function requireActiveRole(
 	if (!u.activeRole) throw redirect("/select-role");
 
 	if (allowed && !allowed.includes(u.activeRole)) {
-		// Check if the user owns at least one of the allowed roles so we can offer a switch.
-		const ownsRequired = allowed.some((r) => u.roles.includes(r));
-
-		if (ownsRequired) {
-			// Preserve destination to redirect back after switchin
-			const next = request ? new URL(request.url).pathname : "/dashboard";
-			throw redirect(`/select-role?next=${encodeURIComponent(next)}`);
-		}
-
-		// User doesn't own any allowed role, send them to profile
-		throw redirect("/dashboard");
+		// Send to access-denied boundary.
+		const next = request ? new URL(request.url).pathname : "/profile";
+		const params = new URLSearchParams({
+			next,
+			roles: allowed.join(","),
+		});
+		throw redirect(`/no-access?${params}`);
 	}
 
 	return u;

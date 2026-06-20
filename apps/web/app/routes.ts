@@ -11,6 +11,7 @@ export default [
 	route("login", "routes/auth/login.tsx"),
 	route("register", "routes/auth/register.tsx"),
 	route("select-role", "routes/select-role.tsx"),
+	route("no-access", "routes/no-access.tsx"),
 	route("logout", "routes/logout.tsx"),
 
 	...prefix("products", [
@@ -18,7 +19,7 @@ export default [
 		route(":id", "routes/products/product.tsx"),
 	]),
 
-	route("dashboard", "routes/dashboard/home.tsx"),
+	route("profile", "routes/profile/home.tsx"),
 	route("buyer", "routes/buyer/layout.tsx", [
 		index("routes/buyer/home.tsx"),
 		route("cart", "routes/buyer/cart.tsx"),

@@ -19,7 +19,7 @@ export default function Products(_: Route.ComponentProps) {
 
 	return (
 		<main>
-			<div className="mx-auto container px-4 py-8">
+			<div className="mx-auto max-w-6xl px-4 py-8">
 				<div className="mb-6 flex items-baseline justify-between">
 					<div>
 						<h1 className="text-xl font-medium text-gray-900">
@@ -29,12 +29,6 @@ export default function Products(_: Route.ComponentProps) {
 							{products.length} items
 						</p>
 					</div>
-					<Link
-						to="/"
-						className="text-sm text-brand-700 hover:underline"
-					>
-						← Back to home
-					</Link>
 				</div>
 
 				<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">

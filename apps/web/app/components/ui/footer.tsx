@@ -23,7 +23,7 @@ const columns = [
 export function Footer() {
 	return (
 		<footer className="bg-gray-900 text-brand-100">
-			<div className="container mx-auto grid grid-cols-2 gap-8 px-4 py-10 sm:grid-cols-5">
+			<div className="max-w-6xl mx-auto grid grid-cols-2 gap-8 px-4 py-10 sm:grid-cols-5">
 				<div className="col-span-2">
 					<div className="mb-2 text-base font-medium text-brand-600">
 						SEApedia

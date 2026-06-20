@@ -50,7 +50,7 @@ export default function Home() {
 	return (
 		<main>
 			<section>
-				<div className="mx-auto grid container items-center gap-8 px-4 py-10 lg:grid-cols-[1.8fr_1fr]">
+				<div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-10 lg:grid-cols-[1.8fr_1fr]">
 					<div>
 						<span className="mb-3 inline-block rounded-md bg-brand-100 px-3 py-1 text-xs font-medium text-brand-700">
 							One marketplace · thousands of stores
@@ -78,7 +78,7 @@ export default function Home() {
 					<img src="/hero.png" />
 				</div>
 
-				<div className="mx-auto flex container flex-wrap items-center gap-2 px-4 pb-8">
+				<div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 pb-8">
 					<span className="text-sm text-gray-500">Categories:</span>
 					{categories.map((category) => (
 						<Link
@@ -93,7 +93,7 @@ export default function Home() {
 			</section>
 
 			<section className="border-t bg-surface">
-				<div className="mx-auto container px-4 py-10">
+				<div className="mx-auto max-w-6xl px-4 py-10">
 					<div className="mb-5 flex items-baseline justify-between">
 						<h2 className="text-xl font-medium text-gray-900">
 							Featured products
@@ -114,7 +114,7 @@ export default function Home() {
 			</section>
 
 			<section className="border-t">
-				<div className="mx-auto container px-4 py-12">
+				<div className="mx-auto max-w-6xl px-4 py-12">
 					<h2 className="text-xl font-medium text-gray-900">
 						What people say
 					</h2>

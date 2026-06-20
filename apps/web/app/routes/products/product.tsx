@@ -40,7 +40,7 @@ export default function ProductDetail({ params }: Route.ComponentProps) {
 
 	return (
 		<main>
-			<div className="mx-auto container max-w-4xl px-4 py-8">
+			<div className="mx-auto max-w-6xl px-4 py-8 mb-8">
 				<Link
 					to="/products"
 					className="mb-6 inline-flex items-center gap-1.5 text-sm text-brand-700 hover:underline"
@@ -87,7 +87,7 @@ export default function ProductDetail({ params }: Route.ComponentProps) {
 							</span>
 						</div>
 
-						<div className="mt-auto pt-8">
+						<div className="pt-8">
 							<Button size="lg" className="w-full gap-2">
 								<ShoppingCart size={18} aria-hidden="true" />
 								Add to cart

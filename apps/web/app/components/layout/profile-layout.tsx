@@ -25,14 +25,7 @@ const ROLE_NAV: Record<Role, NavItem[]> = {
 	ADMIN: [{ to: "/admin", label: "Overview", end: true }],
 };
 
-const ROLE_LABEL: Record<Role, string> = {
-	ADMIN: "Admin",
-	SELLER: "Seller",
-	BUYER: "Buyer",
-	DRIVER: "Driver",
-};
-
-export function DashboardLayout({
+export function ProfileLayout({
 	user,
 	children,
 }: {
@@ -42,22 +35,13 @@ export function DashboardLayout({
 	const items = user.activeRole ? ROLE_NAV[user.activeRole] : [];
 
 	return (
-		<div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 md:flex-row">
+		<div className="mx-auto max-w-6xl flex w-full flex-col gap-4 px-4 py-6 md:flex-row md:gap-6 md:py-8">
 			<aside className="shrink-0 md:w-56">
-				<div className="rounded-xl border bg-surface p-4">
-					<p className="text-xs text-muted">Active role</p>
-					<p className="mt-1 text-sm font-semibold text-gray-900">
-						{user.activeRole
-							? ROLE_LABEL[user.activeRole]
-							: "None selected"}
-					</p>
-				</div>
-
-				<nav className="mt-3 flex flex-col gap-1">
+				<nav className="flex gap-1 overflow-x-auto pb-2 md:flex-col md:overflow-visible md:pb-0">
 					<NavLink
-						to="/dashboard"
+						to="/profile"
 						className={({ isActive }) =>
-							`rounded-md px-3 py-2 text-sm ${
+							`whitespace-nowrap rounded-md px-3 py-2 text-sm ${
 								isActive
 									? "bg-brand-100 font-medium text-brand-900"
 									: "text-gray-700 hover:bg-gray-100"
@@ -72,7 +56,7 @@ export function DashboardLayout({
 							to={item.to}
 							end={item.end}
 							className={({ isActive }) =>
-								`rounded-md px-3 py-2 text-sm ${
+								`whitespace-nowrap rounded-md px-3 py-2 text-sm ${
 									isActive
 										? "bg-brand-100 font-medium text-brand-900"
 										: "text-gray-700 hover:bg-gray-100"
@@ -86,7 +70,7 @@ export function DashboardLayout({
 					{user.roles.filter((r) => r !== "ADMIN").length > 1 && (
 						<NavLink
 							to="/select-role"
-							className="mt-2 rounded-md px-3 py-2 text-sm text-brand-700 hover:bg-gray-100"
+							className="whitespace-nowrap rounded-md px-3 py-2 text-sm text-brand-700 hover:bg-gray-100 md:mt-2"
 						>
 							Switch role
 						</NavLink>

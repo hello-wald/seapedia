@@ -55,6 +55,11 @@ export default function SellerHome({ loaderData }: Route.ComponentProps) {
 		setDescription(store?.description ?? "");
 	}, [store?.name, store?.description, actionData]);
 
+	const isUnchanged =
+		name.trim() === (store?.name ?? "") &&
+		description.trim() === (store?.description ?? "");
+	const canSubmit = name.trim().length > 0 && !isUnchanged;
+
 	return (
 		<div>
 			<h1 className="text-xl font-semibold text-gray-900">
@@ -116,7 +121,7 @@ export default function SellerHome({ loaderData }: Route.ComponentProps) {
 					</p>
 				</div>
 
-				<Button type="submit" disabled={submitting}>
+				<Button type="submit" disabled={submitting || !canSubmit}>
 					{submitting
 						? "Saving…"
 						: store

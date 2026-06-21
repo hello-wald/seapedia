@@ -1,18 +1,27 @@
 import { useEffect, useState } from "react";
 import {
-	Form,
 	Link,
 	redirect,
 	useActionData,
 	useNavigation,
+	useSubmit,
 } from "react-router";
 import { createProductSchema, type Product } from "@seapedia/shared";
 import type { Route } from "./+types/products";
 import { Button } from "~/components/ui/button";
 import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "~/components/ui/table";
+import {
 	ProductDialog,
 	type ProductEditing,
 } from "~/components/product/product-dialog";
+import { ProductActions } from "~/components/product/product-actions";
 import { tokenContext } from "~/.server/middleware";
 import { getMyStore } from "~/.server/stores";
 import {
@@ -84,7 +93,7 @@ export default function SellerProducts({ loaderData }: Route.ComponentProps) {
 	const { store, products } = loaderData;
 	const actionData = useActionData<typeof action>();
 	const navigation = useNavigation();
-	const submitting = navigation.state === "submitting";
+	const submit = useSubmit();
 
 	const [editing, setEditing] = useState<ProductEditing>(null);
 
@@ -92,6 +101,15 @@ export default function SellerProducts({ loaderData }: Route.ComponentProps) {
 	useEffect(() => {
 		if (actionData?.ok) setEditing(null);
 	}, [actionData]);
+
+	const handleDelete = (product: Product) => {
+		if (confirm(`Delete "${product.name}"?`)) {
+			void submit(
+				{ intent: "delete", id: product.id },
+				{ method: "post" },
+			);
+		}
+	};
 
 	if (!store) {
 		return (
@@ -155,85 +173,54 @@ export default function SellerProducts({ loaderData }: Route.ComponentProps) {
 						</p>
 					</div>
 				) : (
-					<div className="overflow-x-auto rounded-lg border">
-						<table className="w-full text-sm">
-							<thead className="border-b bg-gray-50 text-left text-muted">
-								<tr>
-									<th className="px-4 py-2.5 font-medium">
-										Name
-									</th>
-									<th className="px-4 py-2.5 font-medium">
-										Price
-									</th>
-									<th className="px-4 py-2.5 font-medium">
-										Stock
-									</th>
-									<th className="px-4 py-2.5" />
-								</tr>
-							</thead>
-							<tbody>
+					<div className="rounded-lg border">
+						<Table>
+							<TableHeader className="bg-surface">
+								<TableRow>
+									<TableHead>Name</TableHead>
+									<TableHead>Description</TableHead>
+									<TableHead>Price</TableHead>
+									<TableHead>Stock</TableHead>
+									<TableHead className="w-12" />
+								</TableRow>
+							</TableHeader>
+							<TableBody>
 								{products.map((p) => (
-									<tr
-										key={p.id}
-										className="border-b last:border-0"
-									>
-										<td className="px-4 py-2.5 text-gray-900">
+									<TableRow key={p.id}>
+										<TableCell className="font-medium text-gray-900">
 											{p.name}
-										</td>
-										<td className="px-4 py-2.5 text-gray-700">
+										</TableCell>
+										<TableCell className="text-gray-700">
+											{p.description ? (
+												<span
+													className="block max-w-[28ch] truncate"
+													title={p.description}
+												>
+													{p.description}
+												</span>
+											) : (
+												<span className="text-muted">
+													—
+												</span>
+											)}
+										</TableCell>
+										<TableCell className="text-gray-700">
 											{formatRupiah(p.price)}
-										</td>
-										<td className="px-4 py-2.5 text-gray-700">
+										</TableCell>
+										<TableCell className="text-gray-700">
 											{p.stock}
-										</td>
-										<td className="px-4 py-2.5">
-											<div className="flex justify-end gap-2">
-												<Button
-													variant="ghost"
-													size="sm"
-													onClick={() =>
-														setEditing(p)
-													}
-												>
-													Edit
-												</Button>
-												<Form
-													method="post"
-													onSubmit={(e) => {
-														if (
-															!confirm(
-																`Delete "${p.name}"?`,
-															)
-														)
-															e.preventDefault();
-													}}
-												>
-													<input
-														type="hidden"
-														name="intent"
-														value="delete"
-													/>
-													<input
-														type="hidden"
-														name="id"
-														value={p.id}
-													/>
-													<Button
-														type="submit"
-														variant="ghost"
-														size="sm"
-														className="text-destructive"
-														disabled={submitting}
-													>
-														Delete
-													</Button>
-												</Form>
-											</div>
-										</td>
-									</tr>
+										</TableCell>
+										<TableCell className="text-right">
+											<ProductActions
+												product={p}
+												onEdit={setEditing}
+												onDelete={handleDelete}
+											/>
+										</TableCell>
+									</TableRow>
 								))}
-							</tbody>
-						</table>
+							</TableBody>
+						</Table>
 					</div>
 				)}
 			</div>

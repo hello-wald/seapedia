@@ -30,7 +30,7 @@ export async function action({ request }: Route.ActionArgs) {
 	}
 
 	const { user, accessToken } = result.data;
-	const redirectTo = user.activeRole ? "/profile" : "/select-role";
+	const redirectTo = user.activeRole ? "/dashboard" : "/select-role";
 	return createUserSession(accessToken, redirectTo);
 }
 

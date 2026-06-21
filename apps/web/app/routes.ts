@@ -19,7 +19,7 @@ export default [
 		route(":id", "routes/products/product.tsx"),
 	]),
 
-	route("profile", "routes/profile/home.tsx"),
+	route("dashboard", "routes/dashboard/home.tsx"),
 	route("buyer", "routes/buyer/layout.tsx", [
 		index("routes/buyer/home.tsx"),
 		route("cart", "routes/buyer/cart.tsx"),

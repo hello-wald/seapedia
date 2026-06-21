@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { Form, redirect, useActionData, useNavigation } from "react-router";
 import { createStoreSchema } from "@seapedia/shared";
 import type { Route } from "./+types/home";
-import { Button } from "../../components/ui/button";
-import { Input, Textarea } from "../../components/ui/input";
+import { Button } from "~/components/ui/button";
+import { Input, Textarea } from "~/components/ui/input";
 import { tokenContext } from "~/.server/middleware";
 import { getMyStore, saveStore } from "~/.server/stores";
-import { ErrorBanner, SuccessBanner } from "../../components/ui/form-banner";
+import { ErrorBanner, SuccessBanner } from "~/components/ui/form-banner";
 
 export function meta() {
 	return [{ title: "Store · SEApedia" }];

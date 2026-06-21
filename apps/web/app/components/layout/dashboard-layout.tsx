@@ -25,7 +25,7 @@ const ROLE_NAV: Record<Role, NavItem[]> = {
 	ADMIN: [{ to: "/admin", label: "Overview", end: true }],
 };
 
-export function ProfileLayout({
+export function DashboardLayout({
 	user,
 	children,
 }: {
@@ -39,7 +39,7 @@ export function ProfileLayout({
 			<aside className="shrink-0 md:w-56">
 				<nav className="flex gap-1 overflow-x-auto pb-2 md:flex-col md:overflow-visible md:pb-0">
 					<NavLink
-						to="/profile"
+						to="/dashboard"
 						className={({ isActive }) =>
 							`whitespace-nowrap rounded-md px-3 py-2 text-sm ${
 								isActive

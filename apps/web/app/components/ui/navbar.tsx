@@ -13,6 +13,7 @@ import {
 	User,
 	ArrowLeftRight,
 	LogOut,
+	LayoutDashboard,
 } from "lucide-react";
 import { Button } from "./button";
 import {
@@ -139,10 +140,12 @@ export function Navbar() {
 									<DropdownMenuGroup>
 										<DropdownMenuItem
 											className=""
-											onClick={() => navigate("/profile")}
+											onClick={() =>
+												navigate("/dashboard")
+											}
 										>
-											<User size={12} />
-											Profile
+											<LayoutDashboard size={12} />
+											Dashboard
 										</DropdownMenuItem>
 
 										{user.roles.length > 1 && (

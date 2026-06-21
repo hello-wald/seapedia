@@ -2,7 +2,7 @@ import { Outlet } from "react-router";
 import type { Route } from "./+types/layout";
 import { requireActiveRole } from "~/.server/auth";
 import { userContext } from "~/.server/middleware";
-import { ProfileLayout } from "../../components/layout/profile-layout";
+import { DashboardLayout } from "../../components/layout/dashboard-layout";
 
 export function loader({ request, context }: Route.LoaderArgs) {
 	const user = requireActiveRole(
@@ -15,8 +15,8 @@ export function loader({ request, context }: Route.LoaderArgs) {
 
 export default function BuyerLayout({ loaderData }: Route.ComponentProps) {
 	return (
-		<ProfileLayout user={loaderData.user}>
+		<DashboardLayout user={loaderData.user}>
 			<Outlet />
-		</ProfileLayout>
+		</DashboardLayout>
 	);
 }

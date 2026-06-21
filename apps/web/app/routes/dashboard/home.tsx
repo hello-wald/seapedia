@@ -1,11 +1,11 @@
 import type { Route } from "./+types/home";
 import { requireActiveRole, getBalance } from "~/.server/auth";
 import { tokenContext, userContext } from "~/.server/middleware";
-import { ProfileLayout } from "../../components/layout/profile-layout";
+import { DashboardLayout } from "~/components/layout/dashboard-layout";
 import { ROLE_LABEL } from "~/lib/constants";
 
 export function meta() {
-	return [{ title: "Dashboard · SEApedia" }];
+	return [{ title: "Profile · SEApedia" }];
 }
 
 export async function loader({ context }: Route.LoaderArgs) {
@@ -37,7 +37,7 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
 	].filter((f) => user.roles.includes(f.role as (typeof user.roles)[number]));
 
 	return (
-		<ProfileLayout user={user}>
+		<DashboardLayout user={user}>
 			<header className="mb-6">
 				<p className="text-sm text-muted">Welcome back,</p>
 				<h1 className="text-2xl font-semibold text-gray-900">
@@ -88,6 +88,6 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
 					))}
 				</div>
 			</section>
-		</ProfileLayout>
+		</DashboardLayout>
 	);
 }

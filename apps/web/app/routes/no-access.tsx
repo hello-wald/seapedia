@@ -8,7 +8,7 @@ import { ROLE_LABEL } from "~/lib/constants";
 
 function safeNext(value: string | null): string {
 	const next = value ?? "";
-	return next.startsWith("/") && !next.startsWith("//") ? next : "/profile";
+	return next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
 }
 
 export function meta() {

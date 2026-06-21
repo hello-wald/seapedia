@@ -6,7 +6,8 @@ import { Button } from "~/components/ui/button";
 import { Input, Textarea } from "~/components/ui/input";
 import { tokenContext } from "~/.server/middleware";
 import { getMyStore, saveStore } from "~/.server/stores";
-import { ErrorBanner, SuccessBanner } from "~/components/ui/form-banner";
+import { ErrorBanner } from "~/components/ui/form-banner";
+import { useActionFeedback } from "~/lib/hooks/use-action-feedback";
 
 export function meta() {
 	return [{ title: "Store · SEApedia" }];
@@ -23,6 +24,7 @@ export async function action({ request, context }: Route.ActionArgs) {
 	if (!token) throw redirect("/login");
 
 	const formData = await request.formData();
+	const intent = formData.get("intent");
 	const parsed = createStoreSchema.safeParse({
 		name: formData.get("name"),
 		description: formData.get("description"),
@@ -39,7 +41,14 @@ export async function action({ request, context }: Route.ActionArgs) {
 		return { formError: result.error, ok: false };
 	}
 
-	return { formError: null, ok: true };
+	return {
+		formError: null,
+		ok: true,
+		message:
+			intent === "create"
+				? "Store created successfully"
+				: "Changes saved successfully",
+	};
 }
 
 export default function SellerHome({ loaderData }: Route.ComponentProps) {
@@ -54,6 +63,8 @@ export default function SellerHome({ loaderData }: Route.ComponentProps) {
 		setName(store?.name ?? "");
 		setDescription(store?.description ?? "");
 	}, [store?.name, store?.description, actionData]);
+
+	useActionFeedback(actionData, { successFallback: "Store saved." });
 
 	const isUnchanged =
 		name.trim() === (store?.name ?? "") &&
@@ -72,7 +83,11 @@ export default function SellerHome({ loaderData }: Route.ComponentProps) {
 			</p>
 
 			<Form method="post" className="mt-6 max-w-md space-y-4">
-				{actionData?.ok && <SuccessBanner>Store saved.</SuccessBanner>}
+				<input
+					type="hidden"
+					name="intent"
+					value={store ? "update" : "create"}
+				/>
 				{actionData?.formError && (
 					<ErrorBanner>{actionData.formError}</ErrorBanner>
 				)}

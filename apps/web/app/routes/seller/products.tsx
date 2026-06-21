@@ -1,11 +1,5 @@
-import { useEffect, useState } from "react";
-import {
-	Link,
-	redirect,
-	useActionData,
-	useNavigation,
-	useSubmit,
-} from "react-router";
+import { useState } from "react";
+import { Link, redirect, useActionData, useSubmit } from "react-router";
 import { createProductSchema, type Product } from "@seapedia/shared";
 import type { Route } from "./+types/products";
 import { Button } from "~/components/ui/button";
@@ -31,8 +25,9 @@ import {
 	updateProduct,
 } from "~/.server/products";
 import { uploadImage } from "~/.server/uploads";
-import { ErrorBanner, SuccessBanner } from "~/components/ui/form-banner";
 import { formatRupiah } from "~/lib/format";
+import { useActionFeedback } from "~/lib/hooks/use-action-feedback";
+import { toast } from "sonner";
 
 export function meta() {
 	return [{ title: "Products · SEApedia" }];
@@ -59,17 +54,21 @@ export async function action({ request, context }: Route.ActionArgs) {
 		const id = String(formData.get("id"));
 		const result = await deleteProduct(token, id);
 		return result.ok
-			? { ok: true, formError: null }
-			: { ok: false, formError: result.error };
+			? {
+					ok: true,
+					intent,
+					message: "Product deleted successfully",
+					formError: null,
+				}
+			: { ok: false, intent, formError: result.error };
 	}
 
-	// Resolve the image: upload a freshly picked file, else keep the existing one.
 	let imageUrl = String(formData.get("currentImageUrl") ?? "");
 	const file = formData.get("image");
 	if (file instanceof File && file.size > 0) {
 		const upload = await uploadImage(token, file);
 		if (!upload.ok) {
-			return { ok: false, formError: upload.error };
+			return { ok: false, intent, formError: upload.error };
 		}
 		imageUrl = upload.data.url;
 	}
@@ -84,6 +83,7 @@ export async function action({ request, context }: Route.ActionArgs) {
 	if (!parsed.success) {
 		return {
 			ok: false,
+			intent,
 			formError: parsed.error.issues.map((i) => i.message).join(", "),
 		};
 	}
@@ -98,22 +98,42 @@ export async function action({ request, context }: Route.ActionArgs) {
 			: await createProduct(token, parsed.data);
 
 	return result.ok
-		? { ok: true, formError: null }
-		: { ok: false, formError: result.error };
+		? {
+				ok: true,
+				intent,
+				message:
+					intent === "create"
+						? "Product saved successfully"
+						: "Changes saved successfully",
+				formError: null,
+			}
+		: { ok: false, intent, formError: result.error };
 }
 
 export default function SellerProducts({ loaderData }: Route.ComponentProps) {
 	const { store, products } = loaderData;
 	const actionData = useActionData<typeof action>();
-	const navigation = useNavigation();
 	const submit = useSubmit();
 
 	const [editing, setEditing] = useState<ProductEditing>(null);
+	const [formError, setFormError] = useState<string | null>(null);
 
-	// Close the modal after a successful create/update/delete.
-	useEffect(() => {
-		if (actionData?.ok) setEditing(null);
-	}, [actionData]);
+	const openEditing = (value: ProductEditing) => {
+		setFormError(null);
+		setEditing(value);
+	};
+
+	useActionFeedback(actionData, {
+		onSuccess: () => {
+			setFormError(null);
+			setEditing(null);
+		},
+		onError: (data) => {
+			const message = data.formError ?? "Something went wrong.";
+			if (data.intent === "delete") toast.error(message);
+			else setFormError(message);
+		},
+	});
 
 	const handleDelete = (product: Product) => {
 		if (confirm(`Delete "${product.name}"?`)) {
@@ -131,7 +151,7 @@ export default function SellerProducts({ loaderData }: Route.ComponentProps) {
 					Products
 				</h1>
 				<div className="mt-6 rounded-lg border border-dashed p-8 text-center">
-					<p className="text-gray-700">
+					<p className="text-gray-700 font-medium">
 						You need a store before you can add products.
 					</p>
 					<p className="mt-1 text-sm text-muted">
@@ -158,29 +178,23 @@ export default function SellerProducts({ loaderData }: Route.ComponentProps) {
 						{store.name}.
 					</p>
 				</div>
-				<Button onClick={() => setEditing("new")}>Add product</Button>
+				<Button onClick={() => openEditing("new")}>Add product</Button>
 			</div>
-
-			{actionData?.ok && (
-				<SuccessBanner className="mt-4">Saved.</SuccessBanner>
-			)}
-			{actionData?.formError && (
-				<ErrorBanner className="mt-4">
-					{actionData.formError}
-				</ErrorBanner>
-			)}
 
 			<ProductDialog
 				editing={editing}
+				formError={formError}
 				onOpenChange={(open) => {
-					if (!open) setEditing(null);
+					if (!open) openEditing(null);
 				}}
 			/>
 
-			<div className="mt-6">
+			<div className="mt-6 rounded-lg">
 				{products.length === 0 ? (
 					<div className="rounded-lg border border-dashed p-8 text-center">
-						<p className="text-gray-700">No products yet.</p>
+						<p className="text-gray-700 font-medium">
+							No products yet.
+						</p>
 						<p className="mt-1 text-sm text-muted">
 							Create your first product to get started.
 						</p>
@@ -229,7 +243,7 @@ export default function SellerProducts({ loaderData }: Route.ComponentProps) {
 										<TableCell className="text-right">
 											<ProductActions
 												product={p}
-												onEdit={setEditing}
+												onEdit={openEditing}
 												onDelete={handleDelete}
 											/>
 										</TableCell>

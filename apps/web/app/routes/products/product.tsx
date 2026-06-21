@@ -1,6 +1,12 @@
 import type { Route } from "./+types/product";
 import { Link } from "react-router";
-import { ImageOff, MapPin, Store, ShoppingCart, ArrowLeft } from "lucide-react";
+import {
+	ImageOff,
+	Store,
+	ShoppingCart,
+	ArrowLeft,
+	Package,
+} from "lucide-react";
 import { getCatalogProduct } from "../../.server/products";
 import { formatRupiah } from "../../lib/format";
 import { Button } from "../../components/ui/button";
@@ -53,9 +59,9 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
 					Back to products
 				</Link>
 
-				<div className="grid gap-8 md:grid-cols-2">
+				<div className="grid gap-8 md:grid-cols-3">
 					{/* Image area */}
-					<div className="flex aspect-square items-center justify-center overflow-hidden rounded-2xl bg-gray-100 text-gray-400">
+					<div className="flex aspect-square items-center justify-center overflow-hidden rounded-2xl bg-gray-100 text-gray-400 border">
 						{product.imageUrl ? (
 							<img
 								src={product.imageUrl}
@@ -68,22 +74,25 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
 					</div>
 
 					{/* Info */}
-					<div className="flex flex-col">
+					<div className="flex flex-col md:col-span-2">
 						<h1 className="text-2xl font-semibold text-gray-900">
 							{product.name}
 						</h1>
 
-						<div className="mt-4 text-3xl font-bold text-brand-700">
+						<div className="mt-4 text-3xl font-bold text-brand-600">
 							{formatRupiah(product.price)}
 						</div>
 
-						<div className="mt-2 text-sm text-muted">
+						<div className="mt-2 text-sm text-muted flex items-center gap-1">
 							{outOfStock ? (
 								<span className="text-destructive">
 									Out of stock
 								</span>
 							) : (
-								<span>{product.stock} in stock</span>
+								<>
+									<Package size={16} />
+									<span>{product.stock} in stock</span>
+								</>
 							)}
 						</div>
 
@@ -94,19 +103,21 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
 						)}
 
 						{/* Store info block */}
-						<div className="mt-6 rounded-xl border bg-surface p-4">
-							<div className="flex items-center gap-2 text-sm font-medium text-gray-900">
-								<Store size={16} aria-hidden="true" />
-								{product.store.name}
+						<div className="mt-6 flex rounded-xl border bg-surface p-4 items-center gap-3">
+							<div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-700">
+								<Store size={20} aria-hidden="true" />
 							</div>
-							{product.store.description && (
-								<p className="mt-1.5 text-xs leading-relaxed text-muted">
-									{product.store.description}
+							<div className="min-w-0">
+								<p className="truncate text-sm font-semibold text-gray-900">
+									{product.store.name}
 								</p>
-							)}
-							<div className="mt-2 flex items-center gap-1.5 text-xs text-muted">
-								<MapPin size={12} aria-hidden="true" />
-								Sold by {product.store.name}
+								{product.store.description && (
+									<p className="mt-0.5 flex items-center gap-1 text-xs text-muted">
+										<span className="truncate">
+											{product.store.description}
+										</span>
+									</p>
+								)}
 							</div>
 						</div>
 

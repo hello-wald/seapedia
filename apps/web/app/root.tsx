@@ -11,6 +11,7 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import { Navbar } from "./components/ui/navbar";
 import { Footer } from "./components/ui/footer";
+import { Toaster } from "./components/ui/sonner";
 import { authMiddleware, userContext } from "~/.server/middleware";
 
 export const middleware = [authMiddleware];
@@ -51,6 +52,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 					{children}
 				</div>
 				<Footer />
+				<Toaster />
 				<ScrollRestoration />
 				<Scripts />
 			</body>

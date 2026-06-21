@@ -1,4 +1,4 @@
-import { ImageOff, MapPin, Store } from "lucide-react";
+import { ImageOff, Store } from "lucide-react";
 import type { CatalogProduct } from "@seapedia/shared";
 import { formatRupiah } from "../../lib/format";
 

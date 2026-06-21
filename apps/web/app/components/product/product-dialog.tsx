@@ -10,15 +10,18 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "~/components/ui/dialog";
+import { ErrorBanner } from "~/components/ui/form-banner";
 
 // Product = editing, new = creating, null = closed
 export type ProductEditing = Product | "new" | null;
 
 export function ProductDialog({
 	editing,
+	formError,
 	onOpenChange,
 }: {
 	editing: ProductEditing;
+	formError?: string | null;
 	onOpenChange: (open: boolean) => void;
 }) {
 	const navigation = useNavigation();
@@ -38,6 +41,7 @@ export function ProductDialog({
 							: "Add a new product to your store."}
 					</DialogDescription>
 				</DialogHeader>
+				{formError && <ErrorBanner>{formError}</ErrorBanner>}
 				<ProductForm
 					key={product ? product.id : "new"}
 					product={product}
@@ -129,7 +133,7 @@ function ProductForm({
 					name="image"
 					type="file"
 					accept="image/*"
-					className="block w-full text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-brand-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-700 hover:file:bg-brand-200"
+					className="block w-full text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-gray-100 file:px-3 file:py-2.5 file:text-sm file:font-medium file:text-gray-700 hover:file:bg-brand-200"
 				/>
 			</div>
 

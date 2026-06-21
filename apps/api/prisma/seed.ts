@@ -3,10 +3,102 @@ import { hash } from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-async function main() {
+interface SeedProduct {
+	id: string;
+	name: string;
+	description: string;
+	price: number;
+	stock: number;
+}
+
+interface SeedStore {
+	sellerName: string;
+	sellerEmail: string;
+	storeName: string;
+	storeDescription: string;
+	products: SeedProduct[];
+}
+
+const SELLER_PASSWORD = process.env.SELLER_PASSWORD ?? "seller12345";
+
+const stores: SeedStore[] = [
+	{
+		sellerName: "GadgetKu Owner",
+		sellerEmail: "gadgetku@seapedia.local",
+		storeName: "GadgetKu",
+		storeDescription: "Electronics & gadgets · Surabaya",
+		products: [
+			{
+				id: "seed-gadgetku-1",
+				name: "Bluetooth Noise-Cancelling Headset",
+				description:
+					"Over-ear wireless headset with active noise cancellation and 30-hour battery life.",
+				price: 249000,
+				stock: 40,
+			},
+			{
+				id: "seed-gadgetku-2",
+				name: "Waterproof AMOLED Smartwatch",
+				description:
+					"Fitness smartwatch with vivid AMOLED display, heart-rate sensor, and 5ATM water resistance.",
+				price: 512000,
+				stock: 25,
+			},
+		],
+	},
+	{
+		sellerName: "SportLine Owner",
+		sellerEmail: "sportline@seapedia.local",
+		storeName: "SportLine",
+		storeDescription: "Sportswear & apparel · Bandung",
+		products: [
+			{
+				id: "seed-sportline-1",
+				name: "Lightweight Anti-Slip Running Shoes",
+				description:
+					"Breathable running shoes with anti-slip outsole and cushioned midsole.",
+				price: 389000,
+				stock: 60,
+			},
+			{
+				id: "seed-sportline-2",
+				name: "Premium Cotton Oversized T-Shirt",
+				description:
+					"Soft combed-cotton oversized tee, pre-shrunk and available in neutral tones.",
+				price: 99000,
+				stock: 120,
+			},
+		],
+	},
+	{
+		sellerName: "HijauAsri Owner",
+		sellerEmail: "hijauasri@seapedia.local",
+		storeName: "HijauAsri",
+		storeDescription: "Plants & specialty goods · Yogyakarta",
+		products: [
+			{
+				id: "seed-hijauasri-1",
+				name: "Monstera Plant in Ceramic Pot",
+				description:
+					"Healthy Monstera deliciosa in a handmade ceramic pot, ready to brighten any room.",
+				price: 135000,
+				stock: 30,
+			},
+			{
+				id: "seed-hijauasri-2",
+				name: "Single-Origin Arabica Coffee Beans",
+				description:
+					"250g of medium-roast single-origin Arabica beans from the Gayo highlands.",
+				price: 78000,
+				stock: 80,
+			},
+		],
+	},
+];
+
+async function seedAdmin() {
 	const email = process.env.ADMIN_EMAIL ?? "admin@seapedia.local";
 	const password = process.env.ADMIN_PASSWORD ?? "admin12345";
-
 	const passwordHash = await hash(password, 10);
 
 	const admin = await prisma.user.upsert({
@@ -16,16 +108,72 @@ async function main() {
 			name: "SEApedia Admin",
 			email,
 			password: passwordHash,
-			roles: {
-				create: [{ role: Role.ADMIN }],
-			},
+			roles: { create: [{ role: Role.ADMIN }] },
 		},
 		include: { roles: true },
 	});
 
 	console.log(
-		`✅ Seeded admin user: ${admin.email} (roles: ${admin.roles.map((r) => r.role).join(", ")})`,
+		`✅ Seeded admin: ${admin.email} (roles: ${admin.roles.map((r) => r.role).join(", ")})`,
 	);
+}
+
+async function seedStores() {
+	const sellerPasswordHash = await hash(SELLER_PASSWORD, 10);
+
+	for (const config of stores) {
+		const seller = await prisma.user.upsert({
+			where: { email: config.sellerEmail },
+			update: {},
+			create: {
+				name: config.sellerName,
+				email: config.sellerEmail,
+				password: sellerPasswordHash,
+				roles: { create: [{ role: Role.SELLER }] },
+			},
+		});
+
+		const store = await prisma.store.upsert({
+			where: { name: config.storeName },
+			update: { description: config.storeDescription },
+			create: {
+				name: config.storeName,
+				description: config.storeDescription,
+				sellerId: seller.id,
+			},
+		});
+
+		for (const product of config.products) {
+			await prisma.product.upsert({
+				where: { id: product.id },
+				update: {
+					name: product.name,
+					description: product.description,
+					price: product.price,
+					stock: product.stock,
+					storeId: store.id,
+				},
+				create: {
+					id: product.id,
+					name: product.name,
+					description: product.description,
+					price: product.price,
+					stock: product.stock,
+					storeId: store.id,
+				},
+			});
+		}
+
+		console.log(
+			`✅ Seeded store "${store.name}" (${config.sellerEmail}) with ${config.products.length} products`,
+		);
+	}
+}
+
+async function main() {
+	await seedAdmin();
+	await seedStores();
+	console.log("🌱 Seeding complete.");
 }
 
 main()

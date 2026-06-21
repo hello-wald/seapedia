@@ -29,3 +29,5 @@ apps/api/prisma/*.db
 # Editor
 .vscode/
 .idea/
+
+.claude/

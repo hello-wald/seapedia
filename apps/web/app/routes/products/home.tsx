@@ -1,7 +1,7 @@
 import type { Route } from "./+types/home";
 import { Link } from "react-router";
 import { allProducts } from "../../data/products";
-import { ProductCard } from "../../components/ui/product-card";
+import { ProductCard } from "../../components/product/product-card";
 
 export function meta(_: Route.MetaArgs) {
 	return [

@@ -5,7 +5,7 @@ import { Button } from "../components/ui/button";
 import { Input, Textarea } from "../components/ui/input";
 import { Card } from "../components/ui/card";
 import { StarRating } from "../components/ui/star-rating";
-import { ProductCard } from "../components/ui/product-card";
+import { ProductCard } from "../components/product/product-card";
 import {
 	featuredProducts,
 	categories,

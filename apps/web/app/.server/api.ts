@@ -36,6 +36,19 @@ export const postJson = <T>(path: string, body: unknown, token?: string) =>
 export const putJson = <T>(path: string, body: unknown, token?: string) =>
 	sendJson<T>("PUT", path, body, token);
 
+export async function deleteJson<T>(
+	path: string,
+	token?: string,
+): Promise<ApiResult<T>> {
+	const res = await fetch(`${API_URL}${path}`, {
+		method: "DELETE",
+		headers: token ? { Authorization: `Bearer ${token}` } : {},
+	});
+	if (!res.ok) return { ok: false, error: await parseError(res) };
+	const text = await res.text();
+	return { ok: true, data: (text ? JSON.parse(text) : null) as T };
+}
+
 export async function getJson<T>(
 	path: string,
 	token?: string,

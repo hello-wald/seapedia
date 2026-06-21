@@ -22,18 +22,18 @@ model User {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   roles     UserRole[]
-  products  Product[]
   store     Store?
 }
 
 model Store {
-  id          String   @id @default(cuid())
-  name        String   @unique
+  id          String    @id @default(cuid())
+  name        String    @unique
   description String?
-  sellerId    String   @unique
-  seller      User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  sellerId    String    @unique
+  seller      User      @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model UserRole {
@@ -48,15 +48,15 @@ model UserRole {
 }
 
 model Product {
-  id        String   @id @default(cuid())
-  name      String
-  price     Int
-  storeName String
-  city      String
-  rating    Float    @default(0)
-  sold      String   @default("0")
-  sellerId  String?
-  seller    User?    @relation(fields: [sellerId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Int
+  stock       Int      @default(0)
+  storeId     String
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([storeId])
 }

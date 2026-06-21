@@ -30,6 +30,7 @@ import {
 	getMyProducts,
 	updateProduct,
 } from "~/.server/products";
+import { uploadImage } from "~/.server/uploads";
 import { ErrorBanner, SuccessBanner } from "~/components/ui/form-banner";
 import { formatRupiah } from "~/lib/format";
 
@@ -62,11 +63,23 @@ export async function action({ request, context }: Route.ActionArgs) {
 			: { ok: false, formError: result.error };
 	}
 
+	// Resolve the image: upload a freshly picked file, else keep the existing one.
+	let imageUrl = String(formData.get("currentImageUrl") ?? "");
+	const file = formData.get("image");
+	if (file instanceof File && file.size > 0) {
+		const upload = await uploadImage(token, file);
+		if (!upload.ok) {
+			return { ok: false, formError: upload.error };
+		}
+		imageUrl = upload.data.url;
+	}
+
 	const parsed = createProductSchema.safeParse({
 		name: formData.get("name"),
 		description: formData.get("description"),
 		price: formData.get("price"),
 		stock: formData.get("stock"),
+		imageUrl: imageUrl || undefined,
 	});
 	if (!parsed.success) {
 		return {
@@ -186,7 +199,10 @@ export default function SellerProducts({ loaderData }: Route.ComponentProps) {
 							</TableHeader>
 							<TableBody>
 								{products.map((p) => (
-									<TableRow key={p.id}>
+									<TableRow
+										key={p.id}
+										className="hover:bg-gray-100"
+									>
 										<TableCell className="font-medium text-gray-900">
 											{p.name}
 										</TableCell>

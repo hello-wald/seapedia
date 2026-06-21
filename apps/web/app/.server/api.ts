@@ -33,6 +33,21 @@ async function sendJson<T>(
 export const postJson = <T>(path: string, body: unknown, token?: string) =>
 	sendJson<T>("POST", path, body, token);
 
+// Multipart POST.
+export async function postForm<T>(
+	path: string,
+	form: FormData,
+	token?: string,
+): Promise<ApiResult<T>> {
+	const res = await fetch(`${API_URL}${path}`, {
+		method: "POST",
+		headers: token ? { Authorization: `Bearer ${token}` } : {},
+		body: form,
+	});
+	if (!res.ok) return { ok: false, error: await parseError(res) };
+	return { ok: true, data: (await res.json()) as T };
+}
+
 export const putJson = <T>(path: string, body: unknown, token?: string) =>
 	sendJson<T>("PUT", path, body, token);
 

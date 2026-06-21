@@ -53,6 +53,7 @@ model Product {
   description String?
   price       Int
   stock       Int      @default(0)
+  imageUrl    String?
   storeId     String
   store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())

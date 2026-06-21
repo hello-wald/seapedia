@@ -1,5 +1,18 @@
-import type { CreateProductInput, Product } from "@seapedia/shared";
+import type {
+	CatalogProduct,
+	CreateProductInput,
+	Product,
+} from "@seapedia/shared";
 import { deleteJson, getJson, postJson, putJson } from "./api";
+
+// Public catalog
+export function getCatalog() {
+	return getJson<CatalogProduct[]>("/api/products");
+}
+
+export function getCatalogProduct(id: string) {
+	return getJson<CatalogProduct>(`/api/products/${id}`);
+}
 
 export function getMyProducts(token: string) {
 	return getJson<Product[]>("/api/products/me", token);

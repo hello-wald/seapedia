@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { publicStoreSchema } from "./store";
 
 export const createProductSchema = z.object({
 	name: z
@@ -13,6 +14,7 @@ export const createProductSchema = z.object({
 		.optional(),
 	price: z.coerce.number().int().positive("Price must be greater than 0"),
 	stock: z.coerce.number().int().nonnegative("Stock cannot be negative"),
+	imageUrl: z.string().url("Image URL is invalid").optional(),
 });
 export type CreateProductInput = z.infer<typeof createProductSchema>;
 
@@ -25,7 +27,13 @@ export const productSchema = z.object({
 	description: z.string().nullable(),
 	price: z.number().int(),
 	stock: z.number().int(),
+	imageUrl: z.string().nullable(),
 	storeId: z.string(),
 	createdAt: z.string().datetime(),
 });
 export type Product = z.infer<typeof productSchema>;
+
+export const catalogProductSchema = productSchema.extend({
+	store: publicStoreSchema,
+});
+export type CatalogProduct = z.infer<typeof catalogProductSchema>;

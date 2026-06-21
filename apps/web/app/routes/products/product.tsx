@@ -1,12 +1,12 @@
 import type { Route } from "./+types/product";
 import { Link } from "react-router";
-import { MapPin, Star, ShoppingCart, ArrowLeft } from "lucide-react";
-import { allProducts } from "../../data/products";
+import { ImageOff, MapPin, Store, ShoppingCart, ArrowLeft } from "lucide-react";
+import { getCatalogProduct } from "../../.server/products";
 import { formatRupiah } from "../../lib/format";
 import { Button } from "../../components/ui/button";
 
-export function meta({ params }: Route.MetaArgs) {
-	const product = allProducts.find((p) => p.id === params.id);
+export function meta({ loaderData }: Route.MetaArgs) {
+	const product = loaderData?.product;
 	return [
 		{
 			title: product
@@ -16,9 +16,13 @@ export function meta({ params }: Route.MetaArgs) {
 	];
 }
 
-export default function ProductDetail({ params }: Route.ComponentProps) {
-	// TODO (Level 2): replace with a loader + GET /api/products/:id
-	const product = allProducts.find((p) => p.id === params.id);
+export async function loader({ params }: Route.LoaderArgs) {
+	const product = await getCatalogProduct(params.id);
+	return { product };
+}
+
+export default function ProductDetail({ loaderData }: Route.ComponentProps) {
+	const { product } = loaderData;
 
 	if (!product) {
 		return (
@@ -36,7 +40,7 @@ export default function ProductDetail({ params }: Route.ComponentProps) {
 		);
 	}
 
-	const Icon = product.icon;
+	const outOfStock = product.stock <= 0;
 
 	return (
 		<main>
@@ -50,11 +54,17 @@ export default function ProductDetail({ params }: Route.ComponentProps) {
 				</Link>
 
 				<div className="grid gap-8 md:grid-cols-2">
-					{/* Image / icon area */}
-					<div
-						className={`flex aspect-square items-center justify-center rounded-2xl ${product.tone}`}
-					>
-						<Icon size={96} aria-hidden="true" />
+					{/* Image area */}
+					<div className="flex aspect-square items-center justify-center overflow-hidden rounded-2xl bg-gray-100 text-gray-400">
+						{product.imageUrl ? (
+							<img
+								src={product.imageUrl}
+								alt={product.name}
+								className="h-full w-full object-cover"
+							/>
+						) : (
+							<ImageOff size={96} aria-hidden="true" />
+						)}
 					</div>
 
 					{/* Info */}
@@ -63,32 +73,49 @@ export default function ProductDetail({ params }: Route.ComponentProps) {
 							{product.name}
 						</h1>
 
-						<div className="mt-3 flex items-center gap-3 text-sm text-muted">
-							<span className="flex items-center gap-1">
-								<Star
-									size={14}
-									className="fill-amber-400 text-amber-400"
-									aria-hidden="true"
-								/>
-								{product.rating.toFixed(1)}
-							</span>
-							<span>·</span>
-							<span>{product.sold} sold</span>
-						</div>
-
 						<div className="mt-4 text-3xl font-bold text-brand-700">
 							{formatRupiah(product.price)}
 						</div>
 
-						<div className="mt-4 flex items-center gap-1.5 text-sm text-muted">
-							<MapPin size={14} aria-hidden="true" />
-							<span>
-								{product.storeName} · {product.city}
-							</span>
+						<div className="mt-2 text-sm text-muted">
+							{outOfStock ? (
+								<span className="text-destructive">
+									Out of stock
+								</span>
+							) : (
+								<span>{product.stock} in stock</span>
+							)}
+						</div>
+
+						{product.description && (
+							<p className="mt-4 text-sm leading-relaxed text-gray-700">
+								{product.description}
+							</p>
+						)}
+
+						{/* Store info block */}
+						<div className="mt-6 rounded-xl border bg-surface p-4">
+							<div className="flex items-center gap-2 text-sm font-medium text-gray-900">
+								<Store size={16} aria-hidden="true" />
+								{product.store.name}
+							</div>
+							{product.store.description && (
+								<p className="mt-1.5 text-xs leading-relaxed text-muted">
+									{product.store.description}
+								</p>
+							)}
+							<div className="mt-2 flex items-center gap-1.5 text-xs text-muted">
+								<MapPin size={12} aria-hidden="true" />
+								Sold by {product.store.name}
+							</div>
 						</div>
 
 						<div className="pt-8">
-							<Button size="lg" className="w-full gap-2">
+							<Button
+								size="lg"
+								className="w-full gap-2"
+								disabled={outOfStock}
+							>
 								<ShoppingCart size={18} aria-hidden="true" />
 								Add to cart
 							</Button>

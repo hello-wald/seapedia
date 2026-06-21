@@ -1,6 +1,6 @@
 import type { Route } from "./+types/home";
 import { Link } from "react-router";
-import { allProducts } from "../../data/products";
+import { getCatalog } from "../../.server/products";
 import { ProductCard } from "../../components/product/product-card";
 
 export function meta(_: Route.MetaArgs) {
@@ -13,9 +13,13 @@ export function meta(_: Route.MetaArgs) {
 	];
 }
 
-export default function Products(_: Route.ComponentProps) {
-	// TODO(L2): replace with a loader + GET /api/products
-	const products = allProducts;
+export async function loader(_: Route.LoaderArgs) {
+	const products = await getCatalog();
+	return { products: products ?? [] };
+}
+
+export default function Products({ loaderData }: Route.ComponentProps) {
+	const { products } = loaderData;
 
 	return (
 		<main>
@@ -31,13 +35,19 @@ export default function Products(_: Route.ComponentProps) {
 					</div>
 				</div>
 
-				<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-					{products.map((product) => (
-						<Link key={product.id} to={`/products/${product.id}`}>
-							<ProductCard product={product} />
-						</Link>
-					))}
-				</div>
+				{products.length === 0 ? (
+					<p className="py-16 text-center text-sm text-muted">
+						No products yet. Check back soon.
+					</p>
+				) : (
+					<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+						{products.map((product) => (
+							<Link key={product.id} to={`/products/${product.id}`}>
+								<ProductCard product={product} />
+							</Link>
+						))}
+					</div>
+				)}
 			</div>
 		</main>
 	);

@@ -11,6 +11,30 @@ import type { JwtPayload } from "../auth/jwt.types";
 export class ProductsService {
 	constructor(private readonly prisma: PrismaService) {}
 
+	// Public catalog: every product with its store summary.
+	listPublic() {
+		return this.prisma.product.findMany({
+			orderBy: { createdAt: "desc" },
+			include: {
+				store: { select: { id: true, name: true, description: true } },
+			},
+		});
+	}
+
+	// Public product detail with its store summary.
+	async getPublicDetail(id: string) {
+		const product = await this.prisma.product.findUnique({
+			where: { id },
+			include: {
+				store: { select: { id: true, name: true, description: true } },
+			},
+		});
+		if (!product) {
+			throw new NotFoundException("Product not found");
+		}
+		return product;
+	}
+
 	// List the products owned by the current seller's store
 	async listMine(payload: JwtPayload) {
 		const store = await this.requireStore(payload);
@@ -28,6 +52,7 @@ export class ProductsService {
 				description: dto.description || null,
 				price: dto.price,
 				stock: dto.stock,
+				imageUrl: dto.imageUrl ?? null,
 				storeId: store.id,
 			},
 		});
@@ -42,6 +67,7 @@ export class ProductsService {
 				description: dto.description || null,
 				price: dto.price,
 				stock: dto.stock,
+				imageUrl: dto.imageUrl ?? null,
 			},
 		});
 	}

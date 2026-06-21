@@ -6,12 +6,8 @@ import { Input, Textarea } from "../components/ui/input";
 import { Card } from "../components/ui/card";
 import { StarRating } from "../components/ui/star-rating";
 import { ProductCard } from "../components/product/product-card";
-import {
-	featuredProducts,
-	categories,
-	seedReviews,
-	type AppReview,
-} from "../data/landing";
+import { categories, seedReviews, type AppReview } from "../data/landing";
+import { getCatalog } from "../.server/products";
 
 export function meta(_: Route.MetaArgs) {
 	return [
@@ -24,7 +20,13 @@ export function meta(_: Route.MetaArgs) {
 	];
 }
 
-export default function Home() {
+export async function loader(_: Route.LoaderArgs) {
+	const products = await getCatalog();
+	return { featured: (products ?? []).slice(0, 6) };
+}
+
+export default function Home({ loaderData }: Route.ComponentProps) {
+	const { featured } = loaderData;
 	const [reviews, setReviews] = useState<AppReview[]>(seedReviews);
 	const [name, setName] = useState("");
 	const [rating, setRating] = useState(5);
@@ -105,11 +107,22 @@ export default function Home() {
 							See all
 						</Link>
 					</div>
-					<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-						{featuredProducts.map((product) => (
-							<ProductCard key={product.id} product={product} />
-						))}
-					</div>
+					{featured.length === 0 ? (
+						<p className="py-8 text-sm text-muted">
+							No products yet — be the first seller to list one.
+						</p>
+					) : (
+						<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+							{featured.map((product) => (
+								<Link
+									key={product.id}
+									to={`/products/${product.id}`}
+								>
+									<ProductCard product={product} />
+								</Link>
+							))}
+						</div>
+					)}
 				</div>
 			</section>
 

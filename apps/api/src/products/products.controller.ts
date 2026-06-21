@@ -19,25 +19,38 @@ import type { JwtPayload } from "../auth/jwt.types";
 
 @ApiTags("products")
 @Controller("products")
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles("SELLER")
-@ApiBearerAuth("bearer")
 export class ProductsController {
 	constructor(private readonly productsService: ProductsService) {}
 
+	// Public: catalog listing for guests and buyers.
+	@Get()
+	@ApiOperation({ summary: "List all products for the public catalog" })
+	listPublic() {
+		return this.productsService.listPublic();
+	}
+
 	@Get("me")
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Roles("SELLER")
+	@ApiBearerAuth("bearer")
 	@ApiOperation({ summary: "List products owned by the current seller" })
 	listMine(@CurrentUser() user: JwtPayload) {
 		return this.productsService.listMine(user);
 	}
 
 	@Post()
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Roles("SELLER")
+	@ApiBearerAuth("bearer")
 	@ApiOperation({ summary: "Create a product in the current seller's store" })
 	create(@CurrentUser() user: JwtPayload, @Body() dto: SaveProductDto) {
 		return this.productsService.create(user, dto);
 	}
 
 	@Put(":id")
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Roles("SELLER")
+	@ApiBearerAuth("bearer")
 	@ApiOperation({ summary: "Update one of the current seller's products" })
 	update(
 		@CurrentUser() user: JwtPayload,
@@ -48,8 +61,18 @@ export class ProductsController {
 	}
 
 	@Delete(":id")
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Roles("SELLER")
+	@ApiBearerAuth("bearer")
 	@ApiOperation({ summary: "Delete one of the current seller's products" })
 	remove(@CurrentUser() user: JwtPayload, @Param("id") id: string) {
 		return this.productsService.remove(user, id);
+	}
+
+	// Public: product detail for guests and buyers.
+	@Get(":id")
+	@ApiOperation({ summary: "Get a public product detail by id" })
+	getPublicDetail(@Param("id") id: string) {
+		return this.productsService.getPublicDetail(id);
 	}
 }

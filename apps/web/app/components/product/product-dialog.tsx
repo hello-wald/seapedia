@@ -59,13 +59,19 @@ function ProductForm({
 	onCancel: () => void;
 }) {
 	return (
-		<Form method="post" className="space-y-4">
+		<Form method="post" encType="multipart/form-data" className="space-y-4">
 			<input
 				type="hidden"
 				name="intent"
 				value={product ? "update" : "create"}
 			/>
 			{product && <input type="hidden" name="id" value={product.id} />}
+			{/* Preserve the existing image when editing without picking a new file */}
+			<input
+				type="hidden"
+				name="currentImageUrl"
+				value={product?.imageUrl ?? ""}
+			/>
 
 			<div>
 				<label
@@ -98,6 +104,32 @@ function ProductForm({
 					maxLength={2000}
 					placeholder="Describe your product…"
 					defaultValue={product?.description ?? ""}
+				/>
+			</div>
+
+			<div>
+				<label
+					htmlFor="image"
+					className="mb-1.5 block text-sm font-medium text-gray-700"
+				>
+					Image{" "}
+					<span className="font-normal text-muted">
+						(optional, max 2&nbsp;MB)
+					</span>
+				</label>
+				{product?.imageUrl && (
+					<img
+						src={product.imageUrl}
+						alt={product.name}
+						className="mb-2 h-20 w-20 rounded-md border object-cover"
+					/>
+				)}
+				<input
+					id="image"
+					name="image"
+					type="file"
+					accept="image/*"
+					className="block w-full text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-brand-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-700 hover:file:bg-brand-200"
 				/>
 			</div>
 

@@ -99,11 +99,17 @@ export class AuthService {
 	}
 
 	// Get balance summary
-	getBalanceSummary(payload: JwtPayload) {
+	async getBalanceSummary(payload: JwtPayload) {
 		const owns = (role: Role) => payload.roles.includes(role);
+		const wallet = owns("BUYER")
+			? await this.prisma.wallet.findUnique({
+					where: { userId: payload.sub },
+					select: { balance: true },
+				})
+			: null;
 		return {
 			activeRole: payload.activeRole,
-			wallet: owns("BUYER") ? { balance: null } : null,
+			wallet: owns("BUYER") ? { balance: wallet?.balance ?? 0 } : null,
 			sellerIncome: owns("SELLER") ? { total: null } : null,
 			driverEarnings: owns("DRIVER") ? { total: null } : null,
 		};

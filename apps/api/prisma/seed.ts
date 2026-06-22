@@ -20,6 +20,8 @@ interface SeedStore {
 }
 
 const SELLER_PASSWORD = process.env.SELLER_PASSWORD ?? "seller12345";
+const BUYER_PASSWORD = process.env.BUYER_PASSWORD ?? "buyer12345";
+const BUYER_INITIAL_BALANCE = 500000;
 
 const stores: SeedStore[] = [
 	{
@@ -170,9 +172,67 @@ async function seedStores() {
 	}
 }
 
+async function seedBuyer() {
+	const email = "buyer@seapedia.local";
+	const passwordHash = await hash(BUYER_PASSWORD, 10);
+
+	const buyer = await prisma.user.upsert({
+		where: { email },
+		update: {},
+		create: {
+			name: "Demo Buyer",
+			email,
+			password: passwordHash,
+			roles: { create: [{ role: Role.BUYER }] },
+		},
+	});
+
+	const wallet = await prisma.wallet.upsert({
+		where: { userId: buyer.id },
+		update: { balance: BUYER_INITIAL_BALANCE },
+		create: { userId: buyer.id, balance: BUYER_INITIAL_BALANCE },
+	});
+
+	// Seeded top-up so the wallet history is non-empty for demos.
+	await prisma.walletTransaction.upsert({
+		where: { id: "seed-buyer-topup-1" },
+		update: {},
+		create: {
+			id: "seed-buyer-topup-1",
+			walletId: wallet.id,
+			type: "TOPUP",
+			amount: BUYER_INITIAL_BALANCE,
+			balanceAfter: BUYER_INITIAL_BALANCE,
+			description: "Initial wallet top-up",
+		},
+	});
+
+	await prisma.address.upsert({
+		where: { id: "seed-buyer-address-1" },
+		update: {},
+		create: {
+			id: "seed-buyer-address-1",
+			userId: buyer.id,
+			label: "Home",
+			recipientName: "Demo Buyer",
+			phone: "081234567890",
+			line1: "Jl. Merdeka No. 1",
+			city: "Jakarta",
+			province: "DKI Jakarta",
+			postalCode: "10110",
+			isDefault: true,
+		},
+	});
+
+	console.log(
+		`✅ Seeded buyer: ${buyer.email} (balance: ${BUYER_INITIAL_BALANCE}, 1 address)`,
+	);
+}
+
 async function main() {
 	await seedAdmin();
 	await seedStores();
+	await seedBuyer();
 	console.log("🌱 Seeding complete.");
 }
 

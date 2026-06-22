@@ -1,8 +1,11 @@
+import { Link } from "react-router";
 import type { Route } from "./+types/home";
 import { requireActiveRole, getBalance } from "~/.server/auth";
 import { tokenContext, userContext } from "~/.server/middleware";
 import { DashboardLayout } from "~/components/layout/dashboard-layout";
 import { ROLE_LABEL } from "~/lib/constants";
+import { formatRupiah } from "~/lib/format";
+import { Button } from "~/components/ui/button";
 
 export function meta() {
 	return [{ title: "Profile · SEApedia" }];
@@ -22,17 +25,26 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
 		{
 			label: "Wallet balance",
 			role: "BUYER",
-			available: Boolean(balance?.wallet),
+			value:
+				balance?.wallet != null
+					? formatRupiah(balance.wallet.balance ?? 0)
+					: null,
+			href: "/buyer/wallet",
+			cta: "Top up",
 		},
 		{
 			label: "Seller income",
 			role: "SELLER",
-			available: Boolean(balance?.sellerIncome),
+			value: null,
+			href: null,
+			cta: null,
 		},
 		{
 			label: "Driver earnings",
 			role: "DRIVER",
-			available: Boolean(balance?.driverEarnings),
+			value: null,
+			href: null,
+			cta: null,
 		},
 	].filter((f) => user.roles.includes(f.role as (typeof user.roles)[number]));
 
@@ -71,19 +83,35 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
 					Balance &amp; earnings
 				</h2>
 				<p className="mt-1 text-xs text-muted">
-					Financial summaries across your roles. Real figures arrive
-					in a later level.
+					Financial summaries across your roles.
 				</p>
 				<div className="mt-4 grid gap-3 sm:grid-cols-3">
 					{financials.map((f) => (
 						<div
 							key={f.label}
-							className="rounded-lg border border-dashed p-4"
+							className={`rounded-lg border p-4 ${
+								f.value == null ? "border-dashed" : ""
+							}`}
 						>
 							<p className="text-xs text-muted">{f.label}</p>
-							<p className="mt-1 text-lg font-semibold text-gray-400">
-								Coming soon
-							</p>
+							{f.value != null ? (
+								<div className="flex justify-between items-end">
+									<p className="mt-1 text-lg font-semibold text-gray-900">
+										{f.value}
+									</p>
+									{f.href && f.cta && (
+										<Link to={f.href}>
+											<Button variant="accent" size="xs">
+												{f.cta}
+											</Button>
+										</Link>
+									)}
+								</div>
+							) : (
+								<p className="mt-1 text-lg font-semibold text-gray-400">
+									Coming soon
+								</p>
+							)}
 						</div>
 					))}
 				</div>

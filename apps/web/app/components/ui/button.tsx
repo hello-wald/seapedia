@@ -1,7 +1,7 @@
 import { type ButtonHTMLAttributes, forwardRef } from "react";
 
 type Variant = "primary" | "secondary" | "accent" | "outline" | "ghost";
-type Size = "sm" | "md" | "lg";
+type Size = "xs" | "sm" | "md" | "lg";
 
 const variants: Record<Variant, string> = {
 	primary: "bg-brand-600 text-surface hover:opacity-90",
@@ -13,6 +13,7 @@ const variants: Record<Variant, string> = {
 };
 
 const sizes: Record<Size, string> = {
+	xs: "h-8 px-3 text-xs",
 	sm: "h-9 px-3 text-sm",
 	md: "h-10 px-4 text-sm",
 	lg: "h-11 px-6 text-base",

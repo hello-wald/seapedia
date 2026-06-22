@@ -23,6 +23,8 @@ model User {
   updatedAt DateTime   @updatedAt
   roles     UserRole[]
   store     Store?
+  wallet    Wallet?
+  addresses Address[]
 }
 
 model Store {
@@ -60,4 +62,51 @@ model Product {
   updatedAt   DateTime @updatedAt
 
   @@index([storeId])
+}
+
+enum WalletTransactionType {
+  TOPUP
+  PURCHASE // reserved for checkout (L4)
+  REFUND // reserved for refund/return (L6)
+}
+
+model Wallet {
+  id           String              @id @default(cuid())
+  userId       String              @unique
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance      Int                 @default(0) // integer Rupiah
+  transactions WalletTransaction[]
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+}
+
+model WalletTransaction {
+  id           String                @id @default(cuid())
+  walletId     String
+  wallet       Wallet                @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  type         WalletTransactionType
+  amount       Int // positive = credit, negative = debit
+  balanceAfter Int
+  description  String?
+  createdAt    DateTime              @default(now())
+
+  @@index([walletId])
+}
+
+model Address {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label         String
+  recipientName String
+  phone         String
+  line1         String
+  city          String
+  province      String
+  postalCode    String
+  isDefault     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
 }

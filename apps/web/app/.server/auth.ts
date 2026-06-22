@@ -55,7 +55,9 @@ export function requireActiveRole(
 
 	if (allowed && !allowed.includes(u.activeRole)) {
 		// Send to access-denied boundary.
-		const next = request ? new URL(request.url).pathname : "/dashboard";
+		const next = request
+			? new URL(request.url).pathname.replace(/\.data$/, "") // Strip RR single-fetch .data suffix
+			: "/dashboard";
 		const params = new URLSearchParams({
 			next,
 			roles: allowed.join(","),

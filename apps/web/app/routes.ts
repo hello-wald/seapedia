@@ -22,6 +22,8 @@ export default [
 	route("dashboard", "routes/dashboard/home.tsx"),
 	route("buyer", "routes/buyer/layout.tsx", [
 		index("routes/buyer/home.tsx"),
+		route("wallet", "routes/buyer/wallet.tsx"),
+		route("addresses", "routes/buyer/addresses.tsx"),
 		route("cart", "routes/buyer/cart.tsx"),
 		route("orders", "routes/buyer/orders.tsx"),
 	]),

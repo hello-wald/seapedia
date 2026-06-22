@@ -19,8 +19,8 @@ interface SeedStore {
 	products: SeedProduct[];
 }
 
-const SELLER_PASSWORD = process.env.SELLER_PASSWORD ?? "seller12345";
-const BUYER_PASSWORD = process.env.BUYER_PASSWORD ?? "buyer12345";
+const SELLER_PASSWORD = process.env.SELLER_PASSWORD ?? "seller123";
+const BUYER_PASSWORD = process.env.BUYER_PASSWORD ?? "buyer123";
 const BUYER_INITIAL_BALANCE = 500000;
 
 const stores: SeedStore[] = [
@@ -178,19 +178,14 @@ async function seedBuyer() {
 
 	const buyer = await prisma.user.upsert({
 		where: { email },
-		update: {},
+		update: { balance: BUYER_INITIAL_BALANCE },
 		create: {
 			name: "Demo Buyer",
 			email,
 			password: passwordHash,
+			balance: BUYER_INITIAL_BALANCE,
 			roles: { create: [{ role: Role.BUYER }] },
 		},
-	});
-
-	const wallet = await prisma.wallet.upsert({
-		where: { userId: buyer.id },
-		update: { balance: BUYER_INITIAL_BALANCE },
-		create: { userId: buyer.id, balance: BUYER_INITIAL_BALANCE },
 	});
 
 	// Seeded top-up so the wallet history is non-empty for demos.
@@ -199,7 +194,7 @@ async function seedBuyer() {
 		update: {},
 		create: {
 			id: "seed-buyer-topup-1",
-			walletId: wallet.id,
+			userId: buyer.id,
 			type: "TOPUP",
 			amount: BUYER_INITIAL_BALANCE,
 			balanceAfter: BUYER_INITIAL_BALANCE,

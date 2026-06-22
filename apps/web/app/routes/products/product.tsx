@@ -156,32 +156,34 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
 
 					{/* Info */}
 					<div className="flex flex-col">
-						<h1 className="text-2xl font-semibold text-gray-900">
-							{product.name}
-						</h1>
+						<div className="h-fit rounded-xl border bg-surface p-5">
+							<h1 className="text-2xl font-semibold text-gray-900">
+								{product.name}
+							</h1>
 
-						<div className="mt-4 text-3xl font-bold text-brand-600">
-							{formatRupiah(product.price)}
-						</div>
+							<div className="mt-4 text-3xl font-bold text-brand-600">
+								{formatRupiah(product.price)}
+							</div>
 
-						<div className="mt-2 text-sm text-muted flex items-center gap-1">
-							{outOfStock ? (
-								<span className="text-destructive">
-									Out of stock
-								</span>
-							) : (
-								<>
-									<Package size={16} />
-									<span>{product.stock} in stock</span>
-								</>
+							<div className="mt-2 text-sm text-muted flex items-center gap-1">
+								{outOfStock ? (
+									<span className="text-destructive">
+										Out of stock
+									</span>
+								) : (
+									<>
+										<Package size={16} />
+										<span>{product.stock} in stock</span>
+									</>
+								)}
+							</div>
+
+							{product.description && (
+								<p className="mt-4 text-sm leading-relaxed text-gray-700">
+									{product.description}
+								</p>
 							)}
 						</div>
-
-						{product.description && (
-							<p className="mt-4 text-sm leading-relaxed text-gray-700">
-								{product.description}
-							</p>
-						)}
 
 						{/* Store info block */}
 						<div className="mt-6 flex rounded-xl border bg-surface p-4 items-center gap-3">
@@ -203,7 +205,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
 						</div>
 					</div>
 
-					<div className="lg:sticky lg:top-6 h-fit rounded-xl border bg-surface p-5 shadow-card">
+					<div className="lg:sticky lg:top-6 h-fit rounded-xl border bg-surface p-5">
 						<h2 className="text-sm font-semibold text-gray-900">
 							Set quantity
 						</h2>

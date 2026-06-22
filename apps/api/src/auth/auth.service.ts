@@ -54,12 +54,12 @@ export class AuthService {
 			include: { roles: true },
 		});
 		if (!user) {
-			throw new UnauthorizedException("Invalid email");
+			throw new UnauthorizedException("Email not found.");
 		}
 
 		const valid = await bcrypt.compare(dto.password, user.password);
 		if (!valid) {
-			throw new UnauthorizedException("Invalid password");
+			throw new UnauthorizedException("Password is incorrect.");
 		}
 
 		return this.buildAuthResponse(user, this.defaultActiveRole(user));
@@ -101,15 +101,15 @@ export class AuthService {
 	// Get balance summary
 	async getBalanceSummary(payload: JwtPayload) {
 		const owns = (role: Role) => payload.roles.includes(role);
-		const wallet = owns("BUYER")
-			? await this.prisma.wallet.findUnique({
-					where: { userId: payload.sub },
+		const user = owns("BUYER")
+			? await this.prisma.user.findUnique({
+					where: { id: payload.sub },
 					select: { balance: true },
 				})
 			: null;
 		return {
 			activeRole: payload.activeRole,
-			wallet: owns("BUYER") ? { balance: wallet?.balance ?? 0 } : null,
+			wallet: owns("BUYER") ? { balance: user?.balance ?? 0 } : null,
 			sellerIncome: owns("SELLER") ? { total: null } : null,
 			driverEarnings: owns("DRIVER") ? { total: null } : null,
 		};

@@ -15,17 +15,18 @@ enum Role {
 }
 
 model User {
-  id        String     @id @default(cuid())
-  name      String
-  email     String     @unique
-  password  String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  roles     UserRole[]
-  store     Store?
-  wallet    Wallet?
-  addresses Address[]
-  cart      Cart?
+  id           String              @id @default(cuid())
+  name         String
+  email        String              @unique
+  password     String
+  balance      Int                 @default(0) // integer Rupiah; spendable wallet
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  roles        UserRole[]
+  store        Store?
+  transactions WalletTransaction[]
+  addresses    Address[]
+  cart         Cart?
 }
 
 model Store {
@@ -66,9 +67,7 @@ model Product {
   @@index([storeId])
 }
 
-// One cart per buyer. A cart holds products from exactly one store
-// (the single-store rule is enforced in CartService.addItem, deriving
-// the store from the items rather than storing it on the cart).
+// One cart per buyer. A cart holds products from exactly one store.
 model Cart {
   id        String     @id @default(cuid())
   userId    String     @unique
@@ -94,31 +93,21 @@ model CartItem {
 
 enum WalletTransactionType {
   TOPUP
-  PURCHASE // reserved for checkout (L4)
-  REFUND // reserved for refund/return (L6)
-}
-
-model Wallet {
-  id           String              @id @default(cuid())
-  userId       String              @unique
-  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  balance      Int                 @default(0) // integer Rupiah
-  transactions WalletTransaction[]
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
+  PURCHASE
+  REFUND
 }
 
 model WalletTransaction {
   id           String                @id @default(cuid())
-  walletId     String
-  wallet       Wallet                @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   type         WalletTransactionType
   amount       Int // positive = credit, negative = debit
   balanceAfter Int
   description  String?
   createdAt    DateTime              @default(now())
 
-  @@index([walletId])
+  @@index([userId])
 }
 
 model Address {

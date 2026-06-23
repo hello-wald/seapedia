@@ -139,8 +139,10 @@ export default function OrderDetail({ loaderData }: Route.ComponentProps) {
 								{formatRupiah(order.tax)}
 							</dd>
 						</div>
-						<div className="flex justify-between border-t pt-3">
-							<dt className="font-semibold text-gray-900">Total</dt>
+						<div className="flex justify-between border-t mt-3 pt-3">
+							<dt className="font-semibold text-gray-900">
+								Total
+							</dt>
 							<dd className="text-lg font-bold text-gray-900">
 								{formatRupiah(order.total)}
 							</dd>

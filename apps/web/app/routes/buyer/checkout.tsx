@@ -151,10 +151,10 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
 						<p className="text-xs font-semibold uppercase tracking-wide text-muted">
 							Delivery address
 						</p>
-						<div className="mt-2 flex items-start justify-between gap-4">
+						<div className="mt-3 flex items-start justify-between gap-2">
 							<div className="min-w-0">
-								<div className="text-sm font-medium text-gray-900 flex items-center gap-1">
-									<MapPin size={16} />
+								<div className="font-semibold text-gray-900 flex items-center gap-1">
+									<MapPin size={20} />
 									{selected.label} · {selected.recipientName}
 									{selected.isDefault && (
 										<span className="rounded bg-brand-100 px-1.5 py-0.5 text-xs font-normal text-brand-900 ml-1">
@@ -162,7 +162,7 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
 										</span>
 									)}
 								</div>
-								<p className="mt-1 text-sm text-gray-700">
+								<p className="mt-2 text-sm text-gray-700">
 									{selected.phone}
 								</p>
 								<p className="mt-0.5 text-sm text-muted">
@@ -185,14 +185,15 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
 					<Card className="p-5">
 						<div className="flex items-center gap-2">
 							<Store
-								className="size-5 text-brand-600"
+								className="text-brand-600"
 								aria-hidden="true"
+								size={20}
 							/>
-							<h2 className="text-sm font-semibold text-gray-900">
+							<h2 className="font-semibold text-gray-900">
 								{summary.store?.name}
 							</h2>
 						</div>
-						<ul className="mt-4  divide-y divide-border">
+						<ul className="mt-2  divide-y divide-border">
 							{summary.items.map((item) => (
 								<li
 									key={item.id}
@@ -226,7 +227,7 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
 						</ul>
 
 						{/* Delivery method */}
-						<div className="flex items-center justify-between mt-4">
+						<div className="flex items-center justify-between mt-2">
 							<label
 								htmlFor="deliveryMethod"
 								className="text-sm font-semibold text-gray-900 shrink-0"
@@ -272,9 +273,7 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
 
 				{/* Payment summary */}
 				<Card className="h-fit p-5 lg:sticky lg:top-6">
-					<h2 className="text-sm font-semibold text-gray-900">
-						Payment
-					</h2>
+					<h2 className="font-semibold text-gray-900">Payment</h2>
 					<div className="mt-3 flex items-center justify-between rounded-lg border p-3">
 						<span className="flex items-center gap-2 text-sm font-medium text-gray-900">
 							<Wallet
@@ -311,7 +310,7 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
 								{formatRupiah(totals.tax)}
 							</dd>
 						</div>
-						<div className="flex justify-between border-t pt-3">
+						<div className="flex justify-between border-t mt-3 pt-3">
 							<dt className="font-semibold text-gray-900">
 								Total
 							</dt>

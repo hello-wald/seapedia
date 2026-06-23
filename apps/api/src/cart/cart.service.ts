@@ -11,7 +11,6 @@ import type {
 } from "@seapedia/shared";
 import { PrismaService } from "../prisma/prisma.service";
 
-// Cart row with everything buildSummary needs.
 const cartInclude = {
 	items: {
 		orderBy: { createdAt: "asc" },

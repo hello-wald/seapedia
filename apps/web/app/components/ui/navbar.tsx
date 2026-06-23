@@ -89,7 +89,7 @@ export function Navbar() {
 					{user ? (
 						<div className="ml-auto flex items-center gap-3">
 							<Link
-								to="/buyer/cart"
+								to="/cart"
 								aria-label="Cart"
 								className="p-1"
 							>

@@ -1,6 +1,7 @@
 import {
 	type RouteConfig,
 	index,
+	layout,
 	prefix,
 	route,
 } from "@react-router/dev/routes";
@@ -20,12 +21,17 @@ export default [
 	]),
 
 	route("dashboard", "routes/dashboard/home.tsx"),
-	route("buyer", "routes/buyer/layout.tsx", [
-		index("routes/buyer/home.tsx"),
-		route("wallet", "routes/buyer/wallet.tsx"),
-		route("addresses", "routes/buyer/addresses.tsx"),
+
+	layout("routes/buyer/guard.tsx", [
 		route("cart", "routes/buyer/cart.tsx"),
-		route("orders", "routes/buyer/orders.tsx"),
+		route("checkout", "routes/buyer/checkout.tsx"),
+		route("buyer", "routes/buyer/layout.tsx", [
+			index("routes/buyer/home.tsx"),
+			route("wallet", "routes/buyer/wallet.tsx"),
+			route("addresses", "routes/buyer/addresses.tsx"),
+			route("orders", "routes/buyer/orders.tsx"),
+			route("orders/:id", "routes/buyer/order-detail.tsx"),
+		]),
 	]),
 	route("seller", "routes/seller/layout.tsx", [
 		index("routes/seller/home.tsx"),

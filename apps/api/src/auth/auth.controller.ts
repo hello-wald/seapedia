@@ -10,8 +10,6 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import { LoginDto, RegisterDto, SetActiveRoleDto } from "./dto/auth.dto";
 import { JwtAuthGuard } from "./guard/jwt-auth.guard";
-import { RolesGuard } from "./guard/roles.guard";
-import { Roles } from "./decorator/roles.decorator";
 import { CurrentUser } from "./decorator/current-user.decorator";
 import type { JwtPayload } from "./jwt.types";
 
@@ -32,13 +30,6 @@ export class AuthController {
 	login(@Body() dto: LoginDto) {
 		return this.authService.login(dto);
 	}
-
-	// @Post("logout")
-	// @HttpCode(200)
-	// @ApiOperation({ summary: "Log out" })
-	// logout() {
-	// 	return { success: true };
-	// }
 
 	@Get("me")
 	@UseGuards(JwtAuthGuard)
@@ -67,11 +58,4 @@ export class AuthController {
 	balance(@CurrentUser() user: JwtPayload) {
 		return this.authService.getBalanceSummary(user);
 	}
-
-	// @Get("seller/ping")
-	// @UseGuards(JwtAuthGuard, RolesGuard)
-	// @Roles("SELLER")
-	// sellerPing(@CurrentUser() user: JwtPayload) {
-	//   return { ok: true, activeRole: user.activeRole };
-	// }
 }

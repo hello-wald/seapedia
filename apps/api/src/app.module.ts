@@ -9,6 +9,7 @@ import { UploadsModule } from "./uploads/uploads.module";
 import { WalletModule } from "./wallet/wallet.module";
 import { AddressesModule } from "./addresses/addresses.module";
 import { CartModule } from "./cart/cart.module";
+import { OrdersModule } from "./orders/orders.module";
 
 @Module({
 	imports: [
@@ -21,6 +22,7 @@ import { CartModule } from "./cart/cart.module";
 		WalletModule,
 		AddressesModule,
 		CartModule,
+		OrdersModule,
 	],
 	controllers: [AppController],
 })

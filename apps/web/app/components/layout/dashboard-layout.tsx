@@ -12,7 +12,6 @@ const ROLE_NAV: Record<Role, NavItem[]> = {
 		{ to: "/buyer", label: "Overview", end: true },
 		{ to: "/buyer/wallet", label: "Wallet" },
 		{ to: "/buyer/addresses", label: "Addresses" },
-		{ to: "/buyer/cart", label: "Cart" },
 		{ to: "/buyer/orders", label: "Orders" },
 	],
 	SELLER: [

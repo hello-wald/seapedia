@@ -71,7 +71,8 @@ export default function BuyerWallet({ loaderData }: Route.ComponentProps) {
 			setFormError(null);
 			setAmount("");
 		},
-		onError: (data) => setFormError(data.formError ?? "Something went wrong."),
+		onError: (data) =>
+			setFormError(data.formError ?? "Something went wrong."),
 	});
 
 	return (
@@ -163,11 +164,11 @@ export default function BuyerWallet({ loaderData }: Route.ComponentProps) {
 							</TableHeader>
 							<TableBody>
 								{summary.transactions.map((t) => (
-									<TableRow key={t.id} className="hover:bg-gray-100">
+									<TableRow key={t.id}>
 										<TableCell className="text-gray-700">
-											{new Date(t.createdAt).toLocaleString(
-												"id-ID",
-											)}
+											{new Date(
+												t.createdAt,
+											).toLocaleString("id-ID")}
 										</TableCell>
 										<TableCell>
 											<span className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">

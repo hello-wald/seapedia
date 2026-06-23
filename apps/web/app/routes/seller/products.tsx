@@ -213,10 +213,7 @@ export default function SellerProducts({ loaderData }: Route.ComponentProps) {
 							</TableHeader>
 							<TableBody>
 								{products.map((p) => (
-									<TableRow
-										key={p.id}
-										className="hover:bg-gray-100"
-									>
+									<TableRow key={p.id}>
 										<TableCell className="font-medium text-gray-900">
 											{p.name}
 										</TableCell>

@@ -27,6 +27,7 @@ model User {
   transactions WalletTransaction[]
   addresses    Address[]
   cart         Cart?
+  orders       Order[]
 }
 
 model Store {
@@ -36,6 +37,7 @@ model Store {
   sellerId    String    @unique
   seller      User      @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   products    Product[]
+  orders      Order[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -61,13 +63,13 @@ model Product {
   storeId     String
   store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
   cartItems   CartItem[]
+  orderItems  OrderItem[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([storeId])
 }
 
-// One cart per buyer. A cart holds products from exactly one store.
 model Cart {
   id        String     @id @default(cuid())
   userId    String     @unique
@@ -105,9 +107,78 @@ model WalletTransaction {
   amount       Int // positive = credit, negative = debit
   balanceAfter Int
   description  String?
+  orderId      String? // links a PURCHASE/REFUND to its order
+  order        Order?                @relation(fields: [orderId], references: [id], onDelete: SetNull)
   createdAt    DateTime              @default(now())
 
   @@index([userId])
+  @@index([orderId])
+}
+
+enum DeliveryMethod {
+  INSTANT
+  NEXT_DAY
+  REGULAR
+}
+
+enum OrderStatus {
+  SEDANG_DIKEMAS 
+  DIKIRIM
+  SELESAI
+  DIBATALKAN
+}
+
+model Order {
+  id             String               @id @default(cuid())
+  buyerId        String
+  buyer          User                 @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  storeId        String
+  store          Store                @relation(fields: [storeId], references: [id])
+  status         OrderStatus          @default(SEDANG_DIKEMAS)
+  deliveryMethod DeliveryMethod
+  subtotal       Int
+  deliveryFee    Int
+  tax            Int // PPN 12% 
+  total          Int
+  // Recipient/address snapshot just in case address change
+  recipientName  String
+  phone          String
+  addressLine1   String
+  city           String
+  province       String
+  postalCode     String
+  items          OrderItem[]
+  statusHistory  OrderStatusHistory[]
+  transactions   WalletTransaction[]
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  @@index([buyerId])
+  @@index([storeId])
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String? // nullable: keep the line if the product is later deleted
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  name      String
+  unitPrice Int
+  quantity  Int
+  lineTotal Int
+
+  @@index([orderId])
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(cuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  createdAt DateTime    @default(now())
+
+  @@index([orderId])
 }
 
 model Address {

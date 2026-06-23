@@ -269,7 +269,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
 								disabled={outOfStock || submitting}
 							>
 								<ShoppingCart size={18} aria-hidden="true" />
-								{submitting ? "Adding…" : "Add to cart"}
+								Add to cart
 							</Button>
 						</Form>
 					</div>

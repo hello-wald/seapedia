@@ -105,8 +105,7 @@ export default function BuyerCart({ loaderData }: Route.ComponentProps) {
 
 	if (summary.items.length === 0) {
 		return (
-			<div className="space-y-6">
-				<Header />
+			<main className="mx-auto w-full max-w-6xl px-4 py-8 space-y-6">
 				<div className="rounded-lg border border-dashed p-10 text-center">
 					<p className="font-medium text-gray-700">
 						Your cart is empty.
@@ -118,12 +117,12 @@ export default function BuyerCart({ loaderData }: Route.ComponentProps) {
 						<Button variant="outline">Browse products</Button>
 					</Link>
 				</div>
-			</div>
+			</main>
 		);
 	}
 
 	return (
-		<div className="space-y-6">
+		<main className="mx-auto w-full max-w-6xl px-4 py-8 space-y-6">
 			<Header />
 
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -273,19 +272,17 @@ export default function BuyerCart({ loaderData }: Route.ComponentProps) {
 							{formatRupiah(summary.subtotal)}
 						</span>
 					</div>
-					<Button
-						className="mt-5 w-full"
-						disabled
-						title="Coming in a later level"
-					>
-						Checkout
-					</Button>
+					<Link to="/checkout" className="mt-5 block">
+						<Button className="w-full" disabled={busy}>
+							Checkout
+						</Button>
+					</Link>
 					<p className="mt-2 text-center text-xs text-muted">
-						Checkout arrives in a later level.
+						Taxes &amp; delivery calculated at checkout.
 					</p>
 				</Card>
 			</div>
-		</div>
+		</main>
 	);
 }
 

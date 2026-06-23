@@ -28,7 +28,9 @@ export class StoresService {
 		const data = { name: dto.name, description: dto.description || null };
 		return existing
 			? this.prisma.store.update({ where: { id: existing.id }, data })
-			: this.prisma.store.create({ data: { ...data, sellerId: payload.sub } });
+			: this.prisma.store.create({
+					data: { ...data, sellerId: payload.sub },
+				});
 	}
 
 	async getPublic(id: string): Promise<PublicStore> {
@@ -36,10 +38,14 @@ export class StoresService {
 		if (!store) {
 			throw new NotFoundException("Store not found");
 		}
-		return { id: store.id, name: store.name, description: store.description };
+		return {
+			id: store.id,
+			name: store.name,
+			description: store.description,
+		};
 	}
 
-	// Enforce unique store name in the backend (DB @unique is the backstop).
+	// Enforce unique store name in the backend.
 	private async ensureNameAvailable(name: string, ignoreStoreId?: string) {
 		const owner = await this.prisma.store.findUnique({ where: { name } });
 		if (owner && owner.id !== ignoreStoreId) {

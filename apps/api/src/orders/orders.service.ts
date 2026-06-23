@@ -1,15 +1,14 @@
 import {
 	BadRequestException,
-	ForbiddenException,
 	Injectable,
 	NotFoundException,
 } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { type CheckoutInput, computeOrderTotals } from "@seapedia/shared";
 import { PrismaService } from "../prisma/prisma.service";
+import { WalletService } from "../wallet/wallet.service";
 import type { JwtPayload } from "../auth/jwt.types";
 
-// Everything needed to map an order to the shared Order shape.
 const orderDetailInclude = {
 	store: { select: { id: true, name: true, description: true } },
 	buyer: { select: { name: true } },
@@ -23,7 +22,10 @@ type OrderWithDetail = Prisma.OrderGetPayload<{
 
 @Injectable()
 export class OrdersService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly wallet: WalletService,
+	) {}
 
 	// Checkout: charge the wallet, reduce stock, record history.
 	async checkout(userId: string, dto: CheckoutInput) {
@@ -61,23 +63,11 @@ export class OrdersService {
 				dto.deliveryMethod,
 			);
 
-			// Wallet must cover the full total
-			const buyer = await tx.user.findUniqueOrThrow({
-				where: { id: userId },
-				select: { balance: true },
-			});
-			if (buyer.balance < total) {
-				throw new ForbiddenException(
-					"Insufficient wallet balance for this order",
-				);
-			}
-
-			// Safe stock reduction: `stock >= quantity` guard.
 			for (const item of cart.items) {
 				const res = await tx.product.updateMany({
 					where: {
 						id: item.productId,
-						stock: { gte: item.quantity },
+						stock: { gte: item.quantity }, // Check stock
 					},
 					data: { stock: { decrement: item.quantity } },
 				});
@@ -87,12 +77,6 @@ export class OrdersService {
 					);
 				}
 			}
-
-			const updatedBuyer = await tx.user.update({
-				where: { id: userId },
-				data: { balance: { decrement: total } },
-				select: { balance: true },
-			});
 
 			const order = await tx.order.create({
 				data: {
@@ -122,15 +106,10 @@ export class OrdersService {
 				},
 			});
 
-			await tx.walletTransaction.create({
-				data: {
-					userId,
-					orderId: order.id,
-					type: "PURCHASE",
-					amount: -total,
-					balanceAfter: updatedBuyer.balance,
-					description: `Order ${order.id.slice(-6).toUpperCase()}`,
-				},
+			// Charge the wallet and record the PURCHASE ledger entry.
+			await this.wallet.debit(tx, userId, total, {
+				description: `Order ${order.id.slice(-6).toUpperCase()}`,
+				orderId: order.id,
 			});
 
 			await tx.cartItem.deleteMany({ where: { cartId: cart.id } });

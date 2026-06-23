@@ -1,4 +1,5 @@
 import { ForbiddenException, Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
@@ -42,30 +43,34 @@ export class WalletService {
 		return this.getSummary(userId);
 	}
 
-	// Debit the wallet, rejecting when the balance is insufficient, and record a PURCHASE transaction atomically.
-	async debit(userId: string, amount: number, description: string) {
-		return this.prisma.$transaction(async (tx) => {
-			const current = await tx.user.findUniqueOrThrow({
-				where: { id: userId },
-				select: { balance: true },
-			});
-			if (current.balance < amount) {
-				throw new ForbiddenException("Insufficient balance");
-			}
-			const user = await tx.user.update({
-				where: { id: userId },
-				data: { balance: { decrement: amount } },
-				select: { balance: true },
-			});
-			return tx.walletTransaction.create({
-				data: {
-					userId,
-					type: "PURCHASE",
-					amount: -amount,
-					balanceAfter: user.balance,
-					description,
-				},
-			});
+	// Debit the wallet and record a transaction.
+	async debit(
+		tx: Prisma.TransactionClient,
+		userId: string,
+		amount: number,
+		meta: { description: string; orderId?: string },
+	) {
+		const res = await tx.user.updateMany({
+			where: { id: userId, balance: { gte: amount } },
+			data: { balance: { decrement: amount } },
+		});
+		if (res.count === 0) {
+			throw new ForbiddenException("Insufficient balance");
+		}
+
+		const user = await tx.user.findUniqueOrThrow({
+			where: { id: userId },
+			select: { balance: true },
+		});
+		return tx.walletTransaction.create({
+			data: {
+				userId,
+				orderId: meta.orderId ?? null,
+				type: "PURCHASE",
+				amount: -amount,
+				balanceAfter: user.balance,
+				description: meta.description,
+			},
 		});
 	}
 }

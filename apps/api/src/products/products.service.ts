@@ -11,7 +11,7 @@ import type { JwtPayload } from "../auth/jwt.types";
 export class ProductsService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	// Public catalog: every product with its store summary.
+	// Return every product with its store summary.
 	listPublic() {
 		return this.prisma.product.findMany({
 			orderBy: { createdAt: "desc" },

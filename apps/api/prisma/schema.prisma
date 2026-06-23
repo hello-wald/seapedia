@@ -122,7 +122,8 @@ enum DeliveryMethod {
 }
 
 enum OrderStatus {
-  SEDANG_DIKEMAS 
+  SEDANG_DIKEMAS
+  MENUNGGU_PENGIRIM
   DIKIRIM
   SELESAI
   DIBATALKAN

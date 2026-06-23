@@ -1,5 +1,6 @@
 import {
 	BadRequestException,
+	ForbiddenException,
 	Injectable,
 	NotFoundException,
 } from "@nestjs/common";
@@ -154,6 +155,49 @@ export class OrdersService {
 			include: orderDetailInclude,
 		});
 		return orders.map((o) => this.toSummary(o));
+	}
+
+	// Seller processes an incoming order.
+	async processOrder(payload: JwtPayload, id: string) {
+		const store = await this.prisma.store.findUnique({
+			where: { sellerId: payload.sub },
+			select: { id: true },
+		});
+		if (!store) {
+			throw new ForbiddenException("Create your store first");
+		}
+
+		const order = await this.prisma.order.findUnique({
+			where: { id },
+			select: { id: true, storeId: true, status: true },
+		});
+		if (!order) {
+			throw new NotFoundException("Order not found");
+		}
+		if (order.storeId !== store.id) {
+			throw new ForbiddenException(
+				"You can only process your own store's orders",
+			);
+		}
+		if (order.status !== "SEDANG_DIKEMAS") {
+			throw new BadRequestException("Order has already been processed");
+		}
+
+		const updated = await this.prisma.$transaction(async (tx) => {
+			await tx.order.update({
+				where: { id },
+				data: { status: "MENUNGGU_PENGIRIM" },
+			});
+			await tx.orderStatusHistory.create({
+				data: { orderId: id, status: "MENUNGGU_PENGIRIM" },
+			});
+			return tx.order.findUniqueOrThrow({
+				where: { id },
+				include: orderDetailInclude,
+			});
+		});
+
+		return this.toSummary(updated);
 	}
 
 	private toDetail(order: OrderWithDetail) {

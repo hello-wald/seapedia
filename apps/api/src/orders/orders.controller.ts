@@ -40,6 +40,17 @@ export class OrdersController {
 		return this.ordersService.listIncoming(user);
 	}
 
+	@Post(":id/process")
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Roles("SELLER")
+	@ApiBearerAuth("bearer")
+	@ApiOperation({
+		summary: "Process an incoming order",
+	})
+	process(@CurrentUser() user: JwtPayload, @Param("id") id: string) {
+		return this.ordersService.processOrder(user, id);
+	}
+
 	@Get(":id")
 	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Roles("BUYER")

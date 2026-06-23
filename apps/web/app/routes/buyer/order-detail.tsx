@@ -53,7 +53,7 @@ export default function OrderDetail({ loaderData }: Route.ComponentProps) {
 						<h2 className="text-sm font-semibold text-gray-900">
 							Items
 						</h2>
-						<ul className="mt-3 divide-y">
+						<ul className="mt-3 divide-y divide-border">
 							{order.items.map((item) => (
 								<li
 									key={item.id}

@@ -126,21 +126,43 @@ export default function BuyerCart({ loaderData }: Route.ComponentProps) {
 			<Header />
 
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-				<div className="space-y-4">
+				<div className="min-w-0 space-y-4">
 					{summary.store && (
-						<Card className="flex items-center gap-3 p-4">
-							<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-700">
-								<Store size={18} aria-hidden="true" />
+						<Card className="flex items-center justify-between p-4">
+							<div className="flex items-center gap-3">
+								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-700">
+									<Store size={18} aria-hidden="true" />
+								</div>
+								<div className="min-w-0">
+									<p className="truncate text-sm font-semibold text-gray-900">
+										{summary.store.name}
+									</p>
+									<p className="text-xs text-muted">
+										A cart can only hold products from one
+										store.
+									</p>
+								</div>
 							</div>
-							<div className="min-w-0">
-								<p className="truncate text-sm font-semibold text-gray-900">
-									{summary.store.name}
-								</p>
-								<p className="text-xs text-muted">
-									A cart can only hold products from one
-									store.
-								</p>
-							</div>
+
+							<Form method="post" className="flex justify-end">
+								<input
+									type="hidden"
+									name="intent"
+									value="clear"
+								/>
+								<Button
+									type="submit"
+									variant="ghost"
+									size="sm"
+									className="text-destructive!"
+									disabled={busy}
+								>
+									<Trash2 size={18} className="md:hidden" />
+									<span className="hidden md:block">
+										Clear cart
+									</span>
+								</Button>
+							</Form>
 						</Card>
 					)}
 
@@ -241,18 +263,6 @@ export default function BuyerCart({ loaderData }: Route.ComponentProps) {
 							</div>
 						</Card>
 					))}
-
-					<Form method="post">
-						<input type="hidden" name="intent" value="clear" />
-						<Button
-							type="submit"
-							variant="ghost"
-							size="sm"
-							disabled={busy}
-						>
-							Clear cart
-						</Button>
-					</Form>
 				</div>
 
 				{/* Summary */}

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import {
-	Form,
 	Link,
 	redirect,
 	useActionData,
 	useNavigation,
+	useSubmit,
 } from "react-router";
+import { ImageOff, MapPin, Store, Wallet } from "lucide-react";
 import {
 	checkoutSchema,
 	computeOrderTotals,
@@ -19,11 +20,30 @@ import type { Route } from "./+types/checkout";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { ErrorBanner } from "~/components/ui/form-banner";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "~/components/ui/dialog";
+import { AddressPickerDialog } from "~/components/buyer/address-picker-dialog";
 import { tokenContext } from "~/.server/middleware";
 import { getCart } from "~/.server/cart";
 import { getAddresses } from "~/.server/addresses";
+import { getWallet } from "~/.server/wallet";
 import { checkout } from "~/.server/orders";
 import { formatRupiah } from "~/lib/format";
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectLabel,
+	SelectTrigger,
+	SelectValue,
+} from "~/components/ui/select";
 
 const DELIVERY_METHODS = deliveryMethodSchema.options;
 
@@ -34,15 +54,20 @@ export function meta() {
 export async function loader({ context }: Route.LoaderArgs) {
 	const token = context.get(tokenContext);
 	if (!token) throw redirect("/login");
-	const [summary, addresses] = await Promise.all([
+	const [summary, addresses, wallet] = await Promise.all([
 		getCart(token),
 		getAddresses(token),
+		getWallet(token),
 	]);
 	// Nothing to check out
 	if (!summary || summary.items.length === 0) {
 		throw redirect("/cart");
 	}
-	return { summary, addresses: addresses ?? [] };
+	return {
+		summary,
+		addresses: addresses ?? [],
+		balance: wallet?.balance ?? 0,
+	};
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
@@ -69,16 +94,26 @@ export async function action({ request, context }: Route.ActionArgs) {
 }
 
 export default function Checkout({ loaderData }: Route.ComponentProps) {
-	const { summary, addresses } = loaderData;
+	const { summary, addresses, balance } = loaderData;
 	const actionData = useActionData<typeof action>();
 	const navigation = useNavigation();
+	const submit = useSubmit();
 	const submitting = navigation.state === "submitting";
 
 	const defaultAddress = addresses.find((a) => a.isDefault) ?? addresses[0];
 	const [addressId, setAddressId] = useState(defaultAddress?.id ?? "");
 	const [method, setMethod] = useState<DeliveryMethod>("REGULAR");
+	const [addrOpen, setAddrOpen] = useState(false);
+	const [confirmOpen, setConfirmOpen] = useState(false);
 
 	const totals = computeOrderTotals(summary.subtotal, method);
+	const selected =
+		addresses.find((a) => a.id === addressId) ?? defaultAddress;
+
+	const placeOrder = () => {
+		setConfirmOpen(false);
+		submit({ addressId, deliveryMethod: method }, { method: "post" });
+	};
 
 	if (addresses.length === 0) {
 		return (
@@ -103,137 +138,156 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
 
 	return (
 		<main className="mx-auto w-full max-w-6xl px-4 py-8 space-y-6">
-			<div>
-				<h1 className="text-xl font-semibold text-gray-900">
-					Checkout
-				</h1>
-				<p className="mt-1 text-sm text-muted">
-					Review your order from {summary.store?.name} before
-					confirming.
-				</p>
-			</div>
+			<h1 className="text-xl font-semibold text-gray-900">Checkout</h1>
 
 			{actionData && !actionData.ok && actionData.formError && (
 				<ErrorBanner>{actionData.formError}</ErrorBanner>
 			)}
 
-			<Form
-				method="post"
-				className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]"
-			>
+			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
 				<div className="space-y-6">
 					{/* Delivery address */}
 					<Card className="p-5">
-						<h2 className="text-sm font-semibold text-gray-900">
+						<p className="text-xs font-semibold uppercase tracking-wide text-muted">
 							Delivery address
-						</h2>
-						<div className="mt-3 space-y-2">
-							{addresses.map((a) => (
-								<label
-									key={a.id}
-									className={`flex cursor-pointer gap-3 rounded-lg border p-3 ${
-										addressId === a.id
-											? "border-brand-600 bg-brand-50"
-											: "hover:bg-gray-50"
-									}`}
-								>
-									<input
-										type="radio"
-										name="addressId"
-										value={a.id}
-										checked={addressId === a.id}
-										onChange={() => setAddressId(a.id)}
-										className="mt-1 size-4"
-									/>
-									<span className="text-sm">
-										<span className="font-medium text-gray-900">
-											{a.label}
-											{a.isDefault && (
-												<span className="ml-2 rounded bg-brand-100 px-1.5 py-0.5 text-xs text-brand-900">
-													Default
-												</span>
-											)}
+						</p>
+						<div className="mt-2 flex items-start justify-between gap-4">
+							<div className="min-w-0">
+								<div className="text-sm font-medium text-gray-900 flex items-center gap-1">
+									<MapPin size={16} />
+									{selected.label} · {selected.recipientName}
+									{selected.isDefault && (
+										<span className="rounded bg-brand-100 px-1.5 py-0.5 text-xs font-normal text-brand-900 ml-1">
+											Default
 										</span>
-										<span className="mt-0.5 block text-gray-700">
-											{a.recipientName} · {a.phone}
-										</span>
-										<span className="block text-muted">
-											{a.line1}, {a.city}, {a.province}{" "}
-											{a.postalCode}
-										</span>
-									</span>
-								</label>
-							))}
+									)}
+								</div>
+								<p className="mt-1 text-sm text-gray-700">
+									{selected.phone}
+								</p>
+								<p className="mt-0.5 text-sm text-muted">
+									{selected.line1}, {selected.city},{" "}
+									{selected.province} {selected.postalCode}
+								</p>
+							</div>
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								onClick={() => setAddrOpen(true)}
+							>
+								Change
+							</Button>
 						</div>
 					</Card>
 
-					{/* Delivery method */}
+					{/* Store + items */}
 					<Card className="p-5">
-						<h2 className="text-sm font-semibold text-gray-900">
-							Delivery method
-						</h2>
-						<div className="mt-3 space-y-2">
-							{DELIVERY_METHODS.map((m) => (
-								<label
-									key={m}
-									className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 ${
-										method === m
-											? "border-brand-600 bg-brand-50"
-											: "hover:bg-gray-50"
-									}`}
-								>
-									<span className="flex items-center gap-3">
-										<input
-											type="radio"
-											name="deliveryMethod"
-											value={m}
-											checked={method === m}
-											onChange={() => setMethod(m)}
-											className="size-4"
-										/>
-										<span className="text-sm font-medium text-gray-900">
-											{DELIVERY_METHOD_LABELS[m]}
-										</span>
-									</span>
-									<span className="text-sm text-gray-700">
-										{formatRupiah(DELIVERY_FEES[m])}
-									</span>
-								</label>
-							))}
+						<div className="flex items-center gap-2">
+							<Store
+								className="size-5 text-brand-600"
+								aria-hidden="true"
+							/>
+							<h2 className="text-sm font-semibold text-gray-900">
+								{summary.store?.name}
+							</h2>
 						</div>
-					</Card>
-
-					{/* Items */}
-					<Card className="p-5">
-						<h2 className="text-sm font-semibold text-gray-900">
-							Items
-						</h2>
-						<ul className="mt-3 divide-y">
+						<ul className="mt-4  divide-y divide-border">
 							{summary.items.map((item) => (
 								<li
 									key={item.id}
-									className="flex justify-between gap-4 py-2 text-sm"
+									className="flex items-center gap-3 py-3"
 								>
-									<span className="text-gray-900">
-										{item.name}{" "}
-										<span className="text-muted">
-											× {item.quantity}
-										</span>
-									</span>
-									<span className="text-gray-700">
-										{formatRupiah(item.lineTotal)}
-									</span>
+									<div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100 text-gray-400">
+										{item.imageUrl ? (
+											<img
+												src={item.imageUrl}
+												alt={item.name}
+												className="h-full w-full object-cover"
+											/>
+										) : (
+											<ImageOff
+												size={22}
+												aria-hidden="true"
+											/>
+										)}
+									</div>
+									<div className="flex min-w-0 flex-1 items-start justify-between gap-3">
+										<p className="line-clamp-2 text-sm text-gray-900">
+											{item.name}
+										</p>
+										<p className="shrink-0 text-sm font-medium text-gray-700">
+											{item.quantity} ×{" "}
+											{formatRupiah(item.price)}
+										</p>
+									</div>
 								</li>
 							))}
 						</ul>
+
+						{/* Delivery method */}
+						<div className="flex items-center justify-between mt-4">
+							<label
+								htmlFor="deliveryMethod"
+								className="text-sm font-semibold text-gray-900 shrink-0"
+							>
+								Delivery method
+							</label>
+
+							<Select
+								value={method}
+								onValueChange={(value) =>
+									setMethod(value as DeliveryMethod)
+								}
+							>
+								<SelectTrigger
+									id="deliveryMethod"
+									className="w-full max-w-1/2 md:max-w-1/3"
+								>
+									<SelectValue>
+										{DELIVERY_METHOD_LABELS[method]} (
+										{formatRupiah(DELIVERY_FEES[method])})
+									</SelectValue>
+								</SelectTrigger>
+
+								<SelectContent>
+									<SelectGroup>
+										<SelectLabel>
+											Delivery Methods
+										</SelectLabel>
+
+										{DELIVERY_METHODS.map((m) => (
+											<SelectItem key={m} value={m}>
+												{DELIVERY_METHOD_LABELS[m]} (
+												{formatRupiah(DELIVERY_FEES[m])}
+												)
+											</SelectItem>
+										))}
+									</SelectGroup>
+								</SelectContent>
+							</Select>
+						</div>
 					</Card>
 				</div>
 
-				{/* Summary */}
+				{/* Payment summary */}
 				<Card className="h-fit p-5 lg:sticky lg:top-6">
 					<h2 className="text-sm font-semibold text-gray-900">
-						Payment summary
+						Payment
 					</h2>
+					<div className="mt-3 flex items-center justify-between rounded-lg border p-3">
+						<span className="flex items-center gap-2 text-sm font-medium text-gray-900">
+							<Wallet
+								className="size-4 text-brand-600"
+								aria-hidden="true"
+							/>
+							Wallet
+						</span>
+						<span className="text-sm text-gray-700">
+							{formatRupiah(balance)}
+						</span>
+					</div>
+
 					<dl className="mt-4 space-y-2 text-sm">
 						<div className="flex justify-between">
 							<dt className="text-muted">Subtotal</dt>
@@ -266,10 +320,12 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
 							</dd>
 						</div>
 					</dl>
+
 					<Button
-						type="submit"
+						type="button"
 						className="mt-5 w-full"
 						disabled={submitting || !addressId}
+						onClick={() => setConfirmOpen(true)}
 					>
 						{submitting ? "Placing order…" : "Pay & place order"}
 					</Button>
@@ -277,7 +333,45 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
 						Paid from your wallet balance.
 					</p>
 				</Card>
-			</Form>
+			</div>
+
+			<AddressPickerDialog
+				open={addrOpen}
+				onOpenChange={setAddrOpen}
+				addresses={addresses}
+				selectedId={addressId}
+				onSelect={setAddressId}
+			/>
+
+			<Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+				<DialogContent className="max-w-md">
+					<DialogHeader>
+						<DialogTitle>Confirm your order</DialogTitle>
+						<DialogDescription>
+							Pay {formatRupiah(totals.total)} from your wallet
+							for {summary.totalItems}{" "}
+							{summary.totalItems === 1 ? "item" : "items"} from{" "}
+							{summary.store?.name}?
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<Button
+							type="button"
+							onClick={placeOrder}
+							disabled={submitting}
+						>
+							Confirm &amp; pay
+						</Button>
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={() => setConfirmOpen(false)}
+						>
+							Cancel
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</main>
 	);
 }

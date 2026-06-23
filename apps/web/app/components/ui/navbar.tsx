@@ -88,13 +88,18 @@ export function Navbar() {
 
 					{user ? (
 						<div className="ml-auto flex items-center gap-3">
-							<Link
-								to="/cart"
-								aria-label="Cart"
-								className="p-1"
-							>
-								<ShoppingCart size={20} aria-hidden="true" />
-							</Link>
+							{user.activeRole === "BUYER" && (
+								<Link
+									to="/cart"
+									aria-label="Cart"
+									className="p-1"
+								>
+									<ShoppingCart
+										size={20}
+										aria-hidden="true"
+									/>
+								</Link>
+							)}
 
 							<DropdownMenu>
 								<DropdownMenuTrigger className="flex items-center gap-2 rounded-md px-2 py-1 text-sm transition-colors hover:bg-gray-100 focus:outline-none cursor-pointer">

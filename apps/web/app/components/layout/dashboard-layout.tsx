@@ -36,8 +36,8 @@ export function DashboardLayout({
 	const items = user.activeRole ? ROLE_NAV[user.activeRole] : [];
 
 	return (
-		<div className="mx-auto max-w-6xl flex w-full flex-col gap-4 px-4 py-6 md:flex-row md:gap-6 md:py-8">
-			<aside className="shrink-0 md:w-56">
+		<div className="mx-auto max-w-6xl flex w-full flex-col gap-4 px-4 py-6 md:flex-row md:items-start md:gap-6 md:py-8">
+			<aside className="shrink-0 md:w-56 md:sticky md:top-24">
 				<nav className="flex gap-1 overflow-x-auto pb-2 md:flex-col md:overflow-visible md:pb-0">
 					<NavLink
 						to="/dashboard"

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ImageOff } from "lucide-react";
 import { Link, redirect, useActionData, useSubmit } from "react-router";
 import { createProductSchema, type Product } from "@seapedia/shared";
 import type { Route } from "./+types/products";
@@ -215,7 +216,24 @@ export default function SellerProducts({ loaderData }: Route.ComponentProps) {
 								{products.map((p) => (
 									<TableRow key={p.id}>
 										<TableCell className="font-medium text-gray-900">
-											{p.name}
+											<div className="flex items-center gap-3">
+												<div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-gray-100 text-gray-400">
+													{p.imageUrl ? (
+														<img
+															src={p.imageUrl}
+															alt={p.name}
+															className="size-full object-cover"
+															loading="lazy"
+														/>
+													) : (
+														<ImageOff
+															size={16}
+															aria-hidden="true"
+														/>
+													)}
+												</div>
+												{p.name}
+											</div>
 										</TableCell>
 										<TableCell className="text-gray-700">
 											{p.description ? (

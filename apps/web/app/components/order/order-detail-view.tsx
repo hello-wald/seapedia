@@ -33,7 +33,7 @@ export function OrderDetailView({
 				</Link>
 				<div className="flex justify-between mt-2 h-8 gap-4">
 					<div className="flex items-center gap-3">
-						<h1 className="text-xl font-semibold text-gray-900">
+						<h1 className="text-xl font-semibold text-gray-900 truncate">
 							Order {order.id.slice(-6).toUpperCase()}
 						</h1>
 						<OrderStatusBadge status={order.status} />

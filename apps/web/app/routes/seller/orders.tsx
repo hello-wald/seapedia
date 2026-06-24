@@ -1,4 +1,5 @@
-import { Link, redirect } from "react-router";
+import { useNavigate } from "react-router";
+import { Eye } from "lucide-react";
 import { DELIVERY_METHOD_LABELS, type OrderSummary } from "@seapedia/shared";
 import type { Route } from "./+types/orders";
 import {
@@ -10,10 +11,9 @@ import {
 	TableRow,
 } from "~/components/ui/table";
 import { tokenContext } from "~/.server/middleware";
-import { getIncomingOrders, processOrder } from "~/.server/orders";
+import { getIncomingOrders } from "~/.server/orders";
 import { formatRupiah } from "~/lib/format";
 import { OrderStatusBadge } from "~/components/order/order-status-badge";
-import { ProcessOrderButton } from "~/components/order/process-order-button";
 
 export function meta() {
 	return [{ title: "Incoming orders · SEApedia" }];
@@ -26,25 +26,9 @@ export async function loader({ context }: Route.LoaderArgs) {
 	return { orders: orders ?? [] };
 }
 
-export async function action({ request, context }: Route.ActionArgs) {
-	const token = context.get(tokenContext);
-	if (!token) throw redirect("/login");
-
-	const formData = await request.formData();
-	const id = formData.get("id");
-	if (typeof id !== "string" || !id) {
-		return { ok: false, error: "Missing order id" };
-	}
-
-	const result = await processOrder(token, id);
-	if (!result.ok) {
-		return { ok: false, error: result.error };
-	}
-	return { ok: true };
-}
-
 export default function SellerOrders({ loaderData }: Route.ComponentProps) {
 	const { orders } = loaderData;
+	const navigate = useNavigate();
 
 	return (
 		<div>
@@ -76,21 +60,24 @@ export default function SellerOrders({ loaderData }: Route.ComponentProps) {
 								<TableHead className="text-right">
 									Total
 								</TableHead>
-								<TableHead className="text-right">
-									Action
+								<TableHead className="w-12">
+									<span className="sr-only">View</span>
 								</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
 							{orders.map((order) => (
-								<TableRow key={order.id} className="h-18">
+								<TableRow
+									key={order.id}
+									className="group cursor-pointer"
+									onClick={() =>
+										navigate(`/seller/orders/${order.id}`)
+									}
+								>
 									<TableCell className="font-medium text-gray-900">
-										<Link
-											to={`/seller/orders/${order.id}`}
-											className="text-brand-700 hover:underline"
-										>
+										<span className="text-brand-600">
 											{order.id.slice(-6).toUpperCase()}
-										</Link>
+										</span>
 										<span className="ml-1 text-muted">
 											· {order.totalItems}{" "}
 											{order.totalItems === 1
@@ -121,16 +108,8 @@ export default function SellerOrders({ loaderData }: Route.ComponentProps) {
 									<TableCell className="text-right font-medium text-gray-900">
 										{formatRupiah(order.total)}
 									</TableCell>
-									<TableCell className="text-right">
-										{order.status === "SEDANG_DIKEMAS" ? (
-											<ProcessOrderButton
-												orderId={order.id}
-											/>
-										) : (
-											<span className="text-muted">
-												—
-											</span>
-										)}
+									<TableCell className="text-right text-muted group-hover:text-brand-600">
+										<Eye className="ml-auto size-4" />
 									</TableCell>
 								</TableRow>
 							))}

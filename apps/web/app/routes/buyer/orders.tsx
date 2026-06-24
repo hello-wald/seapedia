@@ -1,8 +1,16 @@
-import { Link } from "react-router";
-import { ORDER_STATUS_LABELS, type OrderSummary } from "@seapedia/shared";
+import { Link, useNavigate } from "react-router";
+import { Eye } from "lucide-react";
+import { DELIVERY_METHOD_LABELS, type OrderSummary } from "@seapedia/shared";
 import type { Route } from "./+types/orders";
 import { Button } from "~/components/ui/button";
-import { Card } from "~/components/ui/card";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "~/components/ui/table";
 import { tokenContext } from "~/.server/middleware";
 import { getOrders } from "~/.server/orders";
 import { formatRupiah } from "~/lib/format";
@@ -21,6 +29,7 @@ export async function loader({ context }: Route.LoaderArgs) {
 
 export default function BuyerOrders({ loaderData }: Route.ComponentProps) {
 	const { orders } = loaderData;
+	const navigate = useNavigate();
 
 	return (
 		<div>
@@ -40,38 +49,75 @@ export default function BuyerOrders({ loaderData }: Route.ComponentProps) {
 					</Link>
 				</div>
 			) : (
-				<div className="mt-6 space-y-3">
-					{orders.map((order) => (
-						<Link
-							key={order.id}
-							to={`/buyer/orders/${order.id}`}
-							className="block"
-						>
-							<Card className="flex items-center justify-between gap-4 p-4 transition-colors hover:bg-gray-50">
-								<div className="min-w-0">
-									<div className="flex items-center gap-2">
-										<p className="truncate font-medium text-gray-900">
-											{order.store.name}
-										</p>
-										<OrderStatusBadge status={order.status} />
-									</div>
-									<p className="mt-0.5 text-sm text-muted">
-										{order.totalItems}{" "}
-										{order.totalItems === 1
-											? "item"
-											: "items"}{" "}
-										·{" "}
+				<div className="mt-6 rounded-lg border overflow-hidden">
+					<Table>
+						<TableHeader>
+							<TableRow className="bg-surface">
+								<TableHead>Order</TableHead>
+								<TableHead>Store</TableHead>
+								<TableHead>Delivery</TableHead>
+								<TableHead>Date</TableHead>
+								<TableHead>Status</TableHead>
+								<TableHead className="text-right">
+									Total
+								</TableHead>
+								<TableHead className="w-12">
+									<span className="sr-only">View</span>
+								</TableHead>
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							{orders.map((order) => (
+								<TableRow
+									key={order.id}
+									className="group h-18 cursor-pointer"
+									onClick={() =>
+										navigate(
+											`/buyer/orders/${order.id}`,
+										)
+									}
+								>
+									<TableCell className="font-medium text-gray-900">
+										<span className="text-brand-700">
+											{order.id.slice(-6).toUpperCase()}
+										</span>
+										<span className="ml-1 text-muted">
+											· {order.totalItems}{" "}
+											{order.totalItems === 1
+												? "item"
+												: "items"}
+										</span>
+									</TableCell>
+									<TableCell className="text-gray-700">
+										{order.store.name}
+									</TableCell>
+									<TableCell className="text-gray-700">
+										{
+											DELIVERY_METHOD_LABELS[
+												order.deliveryMethod
+											]
+										}
+									</TableCell>
+									<TableCell className="text-gray-700">
 										{new Date(
 											order.createdAt,
 										).toLocaleDateString("id-ID")}
-									</p>
-								</div>
-								<p className="shrink-0 font-semibold text-gray-900">
-									{formatRupiah(order.total)}
-								</p>
-							</Card>
-						</Link>
-					))}
+									</TableCell>
+									<TableCell>
+										<OrderStatusBadge
+											status={order.status}
+										/>
+									</TableCell>
+									<TableCell className="text-right font-medium text-gray-900">
+										{formatRupiah(order.total)}
+									</TableCell>
+									<TableCell className="text-right text-muted group-hover:text-brand-700">
+										<Eye className="ml-auto size-4" />
+									</TableCell>
+								</TableRow>
+							))}
+						</TableBody>
+					</Table>
 				</div>
 			)}
 		</div>

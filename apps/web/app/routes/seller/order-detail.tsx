@@ -1,9 +1,9 @@
-import { redirect } from "react-router";
+import { redirect, useFetcher } from "react-router";
 import type { Route } from "./+types/order-detail";
 import { tokenContext } from "~/.server/middleware";
 import { getOrder, processOrder } from "~/.server/orders";
 import { OrderDetailView } from "~/components/order/order-detail-view";
-import { ProcessOrderButton } from "~/components/order/process-order-button";
+import { Button } from "~/components/ui/button";
 
 export function meta() {
 	return [{ title: "Order detail · SEApedia" }];
@@ -31,13 +31,25 @@ export default function SellerOrderDetail({
 	loaderData,
 }: Route.ComponentProps) {
 	const { order } = loaderData;
+	const fetcher = useFetcher<typeof action>();
+	const submitting = fetcher.state !== "idle";
+
 	return (
 		<OrderDetailView
 			order={order}
 			backHref="/seller/orders"
 			action={
 				order.status === "SEDANG_DIKEMAS" ? (
-					<ProcessOrderButton orderId={order.id} />
+					<fetcher.Form method="post">
+						<Button type="submit" size="sm" disabled={submitting}>
+							{submitting ? "Processing…" : "Process Order"}
+						</Button>
+						{fetcher.data && !fetcher.data.ok && (
+							<span className="text-xs text-red-600">
+								{fetcher.data.error}
+							</span>
+						)}
+					</fetcher.Form>
 				) : null
 			}
 		/>

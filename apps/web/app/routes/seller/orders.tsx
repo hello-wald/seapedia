@@ -64,10 +64,10 @@ export default function SellerOrders({ loaderData }: Route.ComponentProps) {
 					</p>
 				</div>
 			) : (
-				<div className="mt-6 rounded-lg border">
+				<div className="mt-6 rounded-lg border overflow-hidden">
 					<Table>
-						<TableHeader className="bg-surface">
-							<TableRow>
+						<TableHeader>
+							<TableRow className="bg-surface">
 								<TableHead>Order</TableHead>
 								<TableHead>Buyer</TableHead>
 								<TableHead>Delivery</TableHead>
@@ -83,7 +83,7 @@ export default function SellerOrders({ loaderData }: Route.ComponentProps) {
 						</TableHeader>
 						<TableBody>
 							{orders.map((order) => (
-								<TableRow key={order.id}>
+								<TableRow key={order.id} className="h-18">
 									<TableCell className="font-medium text-gray-900">
 										<Link
 											to={`/seller/orders/${order.id}`}

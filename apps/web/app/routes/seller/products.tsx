@@ -200,7 +200,7 @@ export default function SellerProducts({ loaderData }: Route.ComponentProps) {
 						</p>
 					</div>
 				) : (
-					<div className="rounded-lg border">
+					<div className="rounded-lg border overflow-hidden">
 						<Table>
 							<TableHeader className="bg-surface">
 								<TableRow>

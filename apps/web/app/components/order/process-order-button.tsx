@@ -8,7 +8,7 @@ export function ProcessOrderButton({ orderId }: { orderId: string }) {
 	const submitting = fetcher.state !== "idle";
 
 	return (
-		<fetcher.Form method="post" className="flex-col items-end gap-1">
+		<fetcher.Form method="post">
 			<input type="hidden" name="id" value={orderId} />
 			<Button type="submit" size="sm" disabled={submitting}>
 				{submitting ? "Processing…" : "Process"}

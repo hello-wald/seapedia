@@ -178,13 +178,22 @@ async function seedBuyer() {
 
 	const buyer = await prisma.user.upsert({
 		where: { email },
-		update: { balance: BUYER_INITIAL_BALANCE },
+		update: {},
 		create: {
 			name: "Demo Buyer",
 			email,
 			password: passwordHash,
-			balance: BUYER_INITIAL_BALANCE,
 			roles: { create: [{ role: Role.BUYER }] },
+		},
+	});
+
+	const buyerWallet = await prisma.wallet.upsert({
+		where: { userId_type: { userId: buyer.id, type: "BUYER" } },
+		update: {},
+		create: {
+			userId: buyer.id,
+			type: "BUYER",
+			balance: BUYER_INITIAL_BALANCE,
 		},
 	});
 
@@ -193,7 +202,7 @@ async function seedBuyer() {
 		update: {},
 		create: {
 			id: "seed-buyer-topup-1",
-			userId: buyer.id,
+			walletId: buyerWallet.id,
 			type: "TOPUP",
 			amount: BUYER_INITIAL_BALANCE,
 			balanceAfter: BUYER_INITIAL_BALANCE,

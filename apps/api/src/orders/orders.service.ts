@@ -5,9 +5,14 @@ import {
 	NotFoundException,
 } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
-import { type CheckoutInput, computeOrderTotals } from "@seapedia/shared";
+import {
+	type CheckoutInput,
+	computeDiscount,
+	computeOrderTotals,
+} from "@seapedia/shared";
 import { PrismaService } from "../prisma/prisma.service";
 import { WalletService } from "../wallet/wallet.service";
+import { DiscountsService } from "../discounts/discounts.service";
 import type { JwtPayload } from "../auth/jwt.types";
 
 const orderDetailInclude = {
@@ -26,6 +31,7 @@ export class OrdersService {
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly wallet: WalletService,
+		private readonly discounts: DiscountsService,
 	) {}
 
 	// Checkout: charge the wallet, reduce stock, record history.
@@ -59,9 +65,20 @@ export class OrdersService {
 				(sum, i) => sum + i.product.price * i.quantity,
 				0,
 			);
+
+			// Re-validate discount code & consume
+			const resolution = await this.discounts.consume(
+				tx,
+				dto.discountCode,
+			);
+			const discount = resolution
+				? computeDiscount(subtotal, resolution.percent)
+				: 0;
+
 			const { deliveryFee, tax, total } = computeOrderTotals(
 				subtotal,
 				dto.deliveryMethod,
+				discount,
 			);
 
 			for (const item of cart.items) {
@@ -85,6 +102,9 @@ export class OrdersService {
 					storeId,
 					deliveryMethod: dto.deliveryMethod,
 					subtotal,
+					discount,
+					discountCode: resolution?.code ?? null,
+					discountKind: resolution?.kind ?? null,
 					deliveryFee,
 					tax,
 					total,
@@ -107,7 +127,7 @@ export class OrdersService {
 				},
 			});
 
-			// Charge the wallet and record the PURCHASE ledger entry.
+			// Charge the wallet and record purchase.
 			await this.wallet.debit(tx, userId, total, {
 				description: `Order ${order.id.slice(-6).toUpperCase()}`,
 				orderId: order.id,
@@ -209,6 +229,9 @@ export class OrdersService {
 			status: order.status,
 			deliveryMethod: order.deliveryMethod,
 			subtotal: order.subtotal,
+			discount: order.discount,
+			discountCode: order.discountCode,
+			discountKind: order.discountKind,
 			deliveryFee: order.deliveryFee,
 			tax: order.tax,
 			total: order.total,

@@ -19,6 +19,7 @@ export const PPN_RATE = 0.12;
 
 export interface OrderTotals {
 	subtotal: number;
+	discount: number;
 	deliveryFee: number;
 	tax: number;
 	total: number;
@@ -27,15 +28,22 @@ export interface OrderTotals {
 export function computeOrderTotals(
 	subtotal: number,
 	method: DeliveryMethod,
+	discount = 0,
 ): OrderTotals {
 	const deliveryFee = DELIVERY_FEES[method];
-	const tax = Math.round(subtotal * PPN_RATE);
-	const total = subtotal + deliveryFee + tax;
-	return { subtotal, deliveryFee, tax, total };
+	const taxable = subtotal - discount;
+	const tax = Math.round(taxable * PPN_RATE);
+	const total = taxable + deliveryFee + tax;
+	return { subtotal, discount, deliveryFee, tax, total };
 }
 
 export const checkoutSchema = z.object({
 	addressId: z.string().min(1, "Please select a delivery address"),
 	deliveryMethod: deliveryMethodSchema,
+	discountCode: z
+		.string()
+		.trim()
+		.optional()
+		.transform((c) => (c ? c.toUpperCase() : undefined)),
 });
 export type CheckoutInput = z.infer<typeof checkoutSchema>;

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { publicStoreSchema } from "./store";
 import { deliveryMethodSchema } from "./checkout";
+import { discountKindSchema } from "./discount";
 
 export const orderStatusSchema = z.enum([
 	"SEDANG_DIKEMAS",
@@ -48,6 +49,9 @@ export const orderSchema = z.object({
 	status: orderStatusSchema,
 	deliveryMethod: deliveryMethodSchema,
 	subtotal: z.number().int(),
+	discount: z.number().int(),
+	discountCode: z.string().nullable(),
+	discountKind: discountKindSchema.nullable(),
 	deliveryFee: z.number().int(),
 	tax: z.number().int(),
 	total: z.number().int(),

@@ -37,6 +37,7 @@ export default [
 		index("routes/seller/home.tsx"),
 		route("products", "routes/seller/products.tsx"),
 		route("orders", "routes/seller/orders.tsx"),
+		route("orders/:id", "routes/seller/order-detail.tsx"),
 	]),
 	route("driver", "routes/driver/layout.tsx", [
 		index("routes/driver/home.tsx"),

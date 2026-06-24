@@ -6,14 +6,25 @@ import {
 	useNavigation,
 	useSubmit,
 } from "react-router";
-import { ImageOff, MapPin, Store, Wallet } from "lucide-react";
+import {
+	ChevronRight,
+	ImageOff,
+	MapPin,
+	Store,
+	TicketPercent,
+	Wallet,
+	X,
+} from "lucide-react";
 import {
 	checkoutSchema,
+	computeDiscount,
 	computeOrderTotals,
 	DELIVERY_FEES,
 	DELIVERY_METHOD_LABELS,
 	deliveryMethodSchema,
+	DISCOUNT_KIND_LABELS,
 	PPN_RATE,
+	type AvailableDiscount,
 	type DeliveryMethod,
 } from "@seapedia/shared";
 import type { Route } from "./+types/checkout";
@@ -29,10 +40,12 @@ import {
 	DialogTitle,
 } from "~/components/ui/dialog";
 import { AddressPickerDialog } from "~/components/buyer/address-picker-dialog";
+import { DiscountPickerDialog } from "~/components/buyer/discount-picker-dialog";
 import { requireToken } from "~/.server/middleware";
 import { getCart } from "~/.server/cart";
 import { getAddresses } from "~/.server/addresses";
 import { getWallet } from "~/.server/wallet";
+import { getAvailableDiscounts } from "~/.server/discounts";
 import { checkout } from "~/.server/orders";
 import { formatRupiah } from "~/lib/format";
 import {
@@ -53,10 +66,11 @@ export function meta() {
 
 export async function loader({ context }: Route.LoaderArgs) {
 	const token = requireToken(context);
-	const [summary, addresses, wallet] = await Promise.all([
+	const [summary, addresses, wallet, discounts] = await Promise.all([
 		getCart(token),
 		getAddresses(token),
 		getWallet(token),
+		getAvailableDiscounts(token),
 	]);
 	// Nothing to check out
 	if (!summary || summary.items.length === 0) {
@@ -66,6 +80,7 @@ export async function loader({ context }: Route.LoaderArgs) {
 		summary,
 		addresses: addresses ?? [],
 		balance: wallet?.balance ?? 0,
+		discounts: discounts ?? [],
 	};
 }
 
@@ -76,6 +91,7 @@ export async function action({ request, context }: Route.ActionArgs) {
 	const parsed = checkoutSchema.safeParse({
 		addressId: formData.get("addressId"),
 		deliveryMethod: formData.get("deliveryMethod"),
+		discountCode: formData.get("discountCode") || undefined,
 	});
 	if (!parsed.success) {
 		return {
@@ -92,7 +108,7 @@ export async function action({ request, context }: Route.ActionArgs) {
 }
 
 export default function Checkout({ loaderData }: Route.ComponentProps) {
-	const { summary, addresses, balance } = loaderData;
+	const { summary, addresses, balance, discounts } = loaderData;
 	const actionData = useActionData<typeof action>();
 	const navigation = useNavigation();
 	const submit = useSubmit();
@@ -103,14 +119,26 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
 	const [method, setMethod] = useState<DeliveryMethod>("REGULAR");
 	const [addrOpen, setAddrOpen] = useState(false);
 	const [confirmOpen, setConfirmOpen] = useState(false);
+	const [discountOpen, setDiscountOpen] = useState(false);
+	const [applied, setApplied] = useState<AvailableDiscount | null>(null);
 
-	const totals = computeOrderTotals(summary.subtotal, method);
+	const discountAmount = applied
+		? computeDiscount(summary.subtotal, applied.percent)
+		: 0;
+	const totals = computeOrderTotals(summary.subtotal, method, discountAmount);
 	const selected =
 		addresses.find((a) => a.id === addressId) ?? defaultAddress;
 
 	const placeOrder = () => {
 		setConfirmOpen(false);
-		submit({ addressId, deliveryMethod: method }, { method: "post" });
+		submit(
+			{
+				addressId,
+				deliveryMethod: method,
+				discountCode: applied?.code ?? "",
+			},
+			{ method: "post" },
+		);
 	};
 
 	if (addresses.length === 0) {
@@ -137,10 +165,6 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
 	return (
 		<main className="mx-auto w-full max-w-6xl px-4 py-8 space-y-6">
 			<h1 className="text-xl font-semibold text-gray-900">Checkout</h1>
-
-			{actionData && !actionData.ok && actionData.formError && (
-				<ErrorBanner>{actionData.formError}</ErrorBanner>
-			)}
 
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
 				<div className="space-y-6">
@@ -270,66 +294,131 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
 				</div>
 
 				{/* Payment summary */}
-				<Card className="h-fit p-5 lg:sticky lg:top-6">
-					<h2 className="font-semibold text-gray-900">Payment</h2>
-					<div className="mt-3 flex items-center justify-between rounded-lg border p-3">
-						<span className="flex items-center gap-2 text-sm font-medium text-gray-900">
-							<Wallet
-								className="size-4 text-brand-600"
-								aria-hidden="true"
-							/>
-							Wallet
-						</span>
-						<span className="text-sm text-gray-700">
-							{formatRupiah(balance)}
-						</span>
-					</div>
+				<div className="flex flex-col gap-6">
+					<Card className="h-fit p-5 lg:sticky lg:top-6">
+						<h2 className="font-semibold text-gray-900">Payment</h2>
+						<div className="mt-3 flex items-center justify-between rounded-lg border p-3">
+							<span className="flex items-center gap-2 text-sm font-medium text-gray-900">
+								<Wallet
+									className="size-4 text-brand-600"
+									aria-hidden="true"
+								/>
+								Wallet
+							</span>
+							<span className="text-sm text-gray-700">
+								{formatRupiah(balance)}
+							</span>
+						</div>
 
-					<dl className="mt-4 space-y-2 text-sm">
-						<div className="flex justify-between">
-							<dt className="text-muted">Subtotal</dt>
-							<dd className="text-gray-900">
-								{formatRupiah(totals.subtotal)}
-							</dd>
-						</div>
-						<div className="flex justify-between">
-							<dt className="text-muted">
-								Delivery ({DELIVERY_METHOD_LABELS[method]})
-							</dt>
-							<dd className="text-gray-900">
-								{formatRupiah(totals.deliveryFee)}
-							</dd>
-						</div>
-						<div className="flex justify-between">
-							<dt className="text-muted">
-								PPN ({Math.round(PPN_RATE * 100)}%)
-							</dt>
-							<dd className="text-gray-900">
-								{formatRupiah(totals.tax)}
-							</dd>
-						</div>
-						<div className="flex justify-between border-t mt-3 pt-3">
-							<dt className="font-semibold text-gray-900">
-								Total
-							</dt>
-							<dd className="text-lg font-bold text-gray-900">
-								{formatRupiah(totals.total)}
-							</dd>
-						</div>
-					</dl>
+						{/* Discount code selector (opens the picker dialog) */}
+						{applied ? (
+							<div className="mt-3 flex items-center justify-between rounded-lg border border-brand-600 bg-brand-50 p-3">
+								<button
+									type="button"
+									onClick={() => setDiscountOpen(true)}
+									className="flex min-w-0 items-center gap-2 text-left"
+								>
+									<TicketPercent
+										className="size-5 shrink-0 text-brand-600"
+										aria-hidden="true"
+									/>
+									<span className="truncate text-sm font-medium text-gray-900">
+										{DISCOUNT_KIND_LABELS[applied.kind]}{" "}
+										{applied.code} · {applied.percent}% off
+									</span>
+								</button>
+								<button
+									type="button"
+									onClick={() => setApplied(null)}
+									aria-label="Remove discount"
+									className="shrink-0 text-muted hover:text-gray-900"
+								>
+									<X className="size-4" aria-hidden="true" />
+								</button>
+							</div>
+						) : (
+							<button
+								type="button"
+								onClick={() => setDiscountOpen(true)}
+								className="mt-3 flex w-full items-center justify-between rounded-lg border p-3 text-left hover:border-brand-600"
+							>
+								<span className="flex items-center gap-2 text-sm font-medium text-gray-900">
+									<TicketPercent
+										className="size-5 text-brand-600"
+										aria-hidden="true"
+									/>
+									Add a discount code
+								</span>
+								<ChevronRight
+									className="size-5 text-muted"
+									aria-hidden="true"
+								/>
+							</button>
+						)}
 
-					<Button
-						type="button"
-						className="mt-5 w-full"
-						disabled={submitting || !addressId}
-						onClick={() => setConfirmOpen(true)}
-					>
-						{submitting ? "Placing order…" : "Pay & place order"}
-					</Button>
-					<p className="mt-2 text-center text-xs text-muted">
-						Paid from your wallet balance.
-					</p>
-				</Card>
+						<dl className="mt-4 space-y-2 text-sm">
+							<div className="flex justify-between">
+								<dt className="text-muted">Subtotal</dt>
+								<dd className="text-gray-900">
+									{formatRupiah(totals.subtotal)}
+								</dd>
+							</div>
+							{applied && (
+								<div className="flex justify-between">
+									<dt className="text-muted">
+										Discount (
+										{DISCOUNT_KIND_LABELS[applied.kind]}{" "}
+										{applied.percent}%)
+									</dt>
+									<dd className="text-success">
+										−{formatRupiah(totals.discount)}
+									</dd>
+								</div>
+							)}
+							<div className="flex justify-between">
+								<dt className="text-muted">
+									Delivery ({DELIVERY_METHOD_LABELS[method]})
+								</dt>
+								<dd className="text-gray-900">
+									{formatRupiah(totals.deliveryFee)}
+								</dd>
+							</div>
+							<div className="flex justify-between">
+								<dt className="text-muted">
+									PPN ({Math.round(PPN_RATE * 100)}%)
+								</dt>
+								<dd className="text-gray-900">
+									{formatRupiah(totals.tax)}
+								</dd>
+							</div>
+							<div className="flex justify-between border-t mt-3 pt-3">
+								<dt className="font-semibold text-gray-900">
+									Total
+								</dt>
+								<dd className="text-lg font-bold text-gray-900">
+									{formatRupiah(totals.total)}
+								</dd>
+							</div>
+						</dl>
+
+						<Button
+							type="button"
+							className="mt-5 w-full"
+							disabled={submitting || !addressId}
+							onClick={() => setConfirmOpen(true)}
+						>
+							{submitting
+								? "Placing order…"
+								: "Pay & place order"}
+						</Button>
+						<p className="mt-2 text-center text-xs text-muted">
+							Paid from your wallet balance.
+						</p>
+					</Card>
+					{actionData && !actionData.ok && actionData.formError && (
+						<ErrorBanner>{actionData.formError}</ErrorBanner>
+					)}
+				</div>
 			</div>
 
 			<AddressPickerDialog
@@ -338,6 +427,14 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
 				addresses={addresses}
 				selectedId={addressId}
 				onSelect={setAddressId}
+			/>
+
+			<DiscountPickerDialog
+				open={discountOpen}
+				onOpenChange={setDiscountOpen}
+				discounts={discounts}
+				selectedCode={applied?.code ?? null}
+				onSelect={setApplied}
 			/>
 
 			<Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>

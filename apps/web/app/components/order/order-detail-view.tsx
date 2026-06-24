@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "react-router";
 import {
 	DELIVERY_METHOD_LABELS,
+	DISCOUNT_KIND_LABELS,
 	ORDER_STATUS_LABELS,
 	PPN_RATE,
 	type Order,
@@ -131,6 +132,22 @@ export function OrderDetailView({
 								{formatRupiah(order.subtotal)}
 							</dd>
 						</div>
+						{order.discount > 0 && (
+							<div className="flex justify-between">
+								<dt className="text-muted">
+									Discount
+									{order.discountKind &&
+										` (${DISCOUNT_KIND_LABELS[order.discountKind]}${
+											order.discountCode
+												? ` ${order.discountCode}`
+												: ""
+										})`}
+								</dt>
+								<dd className="text-success">
+									−{formatRupiah(order.discount)}
+								</dd>
+							</div>
+						)}
 						<div className="flex justify-between">
 							<dt className="text-muted">Delivery</dt>
 							<dd className="text-gray-900">

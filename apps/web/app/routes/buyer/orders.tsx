@@ -72,13 +72,11 @@ export default function BuyerOrders({ loaderData }: Route.ComponentProps) {
 									key={order.id}
 									className="group h-18 cursor-pointer"
 									onClick={() =>
-										navigate(
-											`/buyer/orders/${order.id}`,
-										)
+										navigate(`/buyer/orders/${order.id}`)
 									}
 								>
 									<TableCell className="font-medium text-gray-900">
-										<span className="text-brand-700">
+										<span className="text-brand-600">
 											{order.id.slice(-6).toUpperCase()}
 										</span>
 										<span className="ml-1 text-muted">
@@ -111,7 +109,7 @@ export default function BuyerOrders({ loaderData }: Route.ComponentProps) {
 									<TableCell className="text-right font-medium text-gray-900">
 										{formatRupiah(order.total)}
 									</TableCell>
-									<TableCell className="text-right text-muted group-hover:text-brand-700">
+									<TableCell className="text-right text-muted group-hover:text-brand-600">
 										<Eye className="ml-auto size-4" />
 									</TableCell>
 								</TableRow>

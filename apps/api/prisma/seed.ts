@@ -188,7 +188,6 @@ async function seedBuyer() {
 		},
 	});
 
-	// Seeded top-up so the wallet history is non-empty for demos.
 	await prisma.walletTransaction.upsert({
 		where: { id: "seed-buyer-topup-1" },
 		update: {},
@@ -224,10 +223,64 @@ async function seedBuyer() {
 	);
 }
 
+async function seedDiscounts() {
+	const day = 24 * 60 * 60 * 1000;
+	const now = Date.now();
+	const in30Days = new Date(now + 30 * day);
+	const yesterday = new Date(now - day);
+
+	const vouchers = [
+		{
+			code: "HEMAT10",
+			percent: 10,
+			expiresAt: in30Days,
+			usageLimit: 5,
+			usedCount: 0,
+		},
+		{
+			code: "EXPIRED5",
+			percent: 5,
+			expiresAt: yesterday,
+			usageLimit: 5,
+			usedCount: 0,
+		},
+		{
+			code: "HABIS",
+			percent: 15,
+			expiresAt: in30Days,
+			usageLimit: 3,
+			usedCount: 3,
+		},
+	];
+	for (const v of vouchers) {
+		await prisma.voucher.upsert({
+			where: { code: v.code },
+			update: {
+				percent: v.percent,
+				expiresAt: v.expiresAt,
+				usageLimit: v.usageLimit,
+				usedCount: v.usedCount,
+			},
+			create: v,
+		});
+	}
+
+	await prisma.promo.upsert({
+		where: { code: "PROMO20" },
+		update: { percent: 20, expiresAt: in30Days },
+		create: { code: "PROMO20", percent: 20, expiresAt: in30Days },
+	});
+
+	console.log(
+		`✅ Seeded discounts: ${vouchers.length} vouchers + 1 promo (HEMAT10, EXPIRED5, HABIS, PROMO20)`,
+	);
+}
+
 async function main() {
 	await seedAdmin();
 	await seedStores();
 	await seedBuyer();
+	await seedDiscounts();
 	console.log("🌱 Seeding complete.");
 }
 

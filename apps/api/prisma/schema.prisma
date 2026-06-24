@@ -19,7 +19,7 @@ model User {
   name         String
   email        String              @unique
   password     String
-  balance      Int                 @default(0) // integer Rupiah; spendable wallet
+  balance      Int                 @default(0) 
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
   roles        UserRole[]
@@ -104,10 +104,10 @@ model WalletTransaction {
   userId       String
   user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   type         WalletTransactionType
-  amount       Int // positive = credit, negative = debit
+  amount       Int 
   balanceAfter Int
   description  String?
-  orderId      String? // links a PURCHASE/REFUND to its order
+  orderId      String?
   order        Order?                @relation(fields: [orderId], references: [id], onDelete: SetNull)
   createdAt    DateTime              @default(now())
 
@@ -119,6 +119,33 @@ enum DeliveryMethod {
   INSTANT
   NEXT_DAY
   REGULAR
+}
+
+enum DiscountKind {
+  VOUCHER
+  PROMO
+}
+
+model Voucher {
+  id         String   @id @default(cuid())
+  code       String   @unique
+  percent    Int 
+  expiresAt  DateTime
+  usageLimit Int
+  usedCount  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Promo {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  percent   Int 
+  expiresAt DateTime
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum OrderStatus {
@@ -138,10 +165,12 @@ model Order {
   status         OrderStatus          @default(SEDANG_DIKEMAS)
   deliveryMethod DeliveryMethod
   subtotal       Int
+  discount       Int                  @default(0) 
+  discountCode   String? 
+  discountKind   DiscountKind? 
   deliveryFee    Int
-  tax            Int // PPN 12% 
+  tax            Int 
   total          Int
-  // Recipient/address snapshot just in case address change
   recipientName  String
   phone          String
   addressLine1   String
@@ -162,7 +191,7 @@ model OrderItem {
   id        String   @id @default(cuid())
   orderId   String
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId String? // nullable: keep the line if the product is later deleted
+  productId String? 
   product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
   name      String
   unitPrice Int

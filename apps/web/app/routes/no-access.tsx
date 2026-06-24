@@ -1,15 +1,10 @@
 import { Link, useNavigate } from "react-router";
 import type { Role } from "@seapedia/shared";
 import type { Route } from "./+types/no-access";
-import { requireUser } from "~/.server/auth";
+import { requireUser, safeNext } from "~/.server/auth";
 import { userContext } from "~/.server/middleware";
 import { Button } from "~/components/ui/button";
 import { ROLE_LABEL } from "~/lib/constants";
-
-function safeNext(value: string | null): string {
-	const next = value ?? "";
-	return next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
-}
 
 export function meta() {
 	return [{ title: "No access · SEApedia" }];

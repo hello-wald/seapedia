@@ -1,7 +1,7 @@
 import { Form, redirect, useActionData, useNavigation } from "react-router";
 import type { Role } from "@seapedia/shared";
 import type { Route } from "./+types/select-role";
-import { requireUser, setActiveRole } from "~/.server/auth";
+import { requireUser, safeNext, setActiveRole } from "~/.server/auth";
 import { createUserSession } from "~/.server/session";
 import { tokenContext, userContext } from "~/.server/middleware";
 import { ErrorBanner } from "../components/ui/form-banner";
@@ -12,12 +12,6 @@ const ROLE_COPY: Record<string, { label: string; description: string }> = {
 	DRIVER: { label: "Driver", description: "Find and take delivery jobs" },
 	ADMIN: { label: "Admin", description: "Monitor the marketplace" },
 };
-
-// Only allow redirecting to in-app paths after switching.
-function safeNext(value: FormDataEntryValue | string | null): string {
-	const next = typeof value === "string" ? value : "";
-	return next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
-}
 
 export function meta() {
 	return [{ title: "Choose role · SEApedia" }];

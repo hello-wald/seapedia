@@ -35,6 +35,12 @@ export function getBalance(token: string) {
 	return getJson<BalanceSummary>("/api/auth/balance", token);
 }
 
+// Sanitize a redirect target: only allow same-origin paths
+export function safeNext(value: FormDataEntryValue | string | null): string {
+	const next = typeof value === "string" ? value : "";
+	return next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
+}
+
 // --- Guards (used by route loaders) ---
 
 // Require a logged-in user; redirect to /login otherwise

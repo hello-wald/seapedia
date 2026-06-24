@@ -29,7 +29,7 @@ import {
 	DialogTitle,
 } from "~/components/ui/dialog";
 import { AddressPickerDialog } from "~/components/buyer/address-picker-dialog";
-import { tokenContext } from "~/.server/middleware";
+import { requireToken } from "~/.server/middleware";
 import { getCart } from "~/.server/cart";
 import { getAddresses } from "~/.server/addresses";
 import { getWallet } from "~/.server/wallet";
@@ -52,8 +52,7 @@ export function meta() {
 }
 
 export async function loader({ context }: Route.LoaderArgs) {
-	const token = context.get(tokenContext);
-	if (!token) throw redirect("/login");
+	const token = requireToken(context);
 	const [summary, addresses, wallet] = await Promise.all([
 		getCart(token),
 		getAddresses(token),
@@ -71,8 +70,7 @@ export async function loader({ context }: Route.LoaderArgs) {
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
-	const token = context.get(tokenContext);
-	if (!token) throw redirect("/login");
+	const token = requireToken(context);
 
 	const formData = await request.formData();
 	const parsed = checkoutSchema.safeParse({

@@ -1,6 +1,6 @@
 import { redirect, useFetcher } from "react-router";
 import type { Route } from "./+types/order-detail";
-import { tokenContext } from "~/.server/middleware";
+import { requireToken } from "~/.server/middleware";
 import { getOrder, processOrder } from "~/.server/orders";
 import { OrderDetailView } from "~/components/order/order-detail-view";
 import { Button } from "~/components/ui/button";
@@ -10,16 +10,14 @@ export function meta() {
 }
 
 export async function loader({ context, params }: Route.LoaderArgs) {
-	const token = context.get(tokenContext);
-	if (!token) throw redirect("/login");
+	const token = requireToken(context);
 	const order = await getOrder(token, params.id);
 	if (!order) throw redirect("/seller/orders");
 	return { order };
 }
 
 export async function action({ context, params }: Route.ActionArgs) {
-	const token = context.get(tokenContext);
-	if (!token) throw redirect("/login");
+	const token = requireToken(context);
 	const result = await processOrder(token, params.id);
 	if (!result.ok) {
 		return { ok: false as const, error: result.error };

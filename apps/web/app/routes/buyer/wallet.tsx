@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Form, redirect, useActionData, useNavigation } from "react-router";
+import { Form, useActionData, useNavigation } from "react-router";
 import { topUpSchema, type WalletTransactionType } from "@seapedia/shared";
 import type { Route } from "./+types/wallet";
 import { Button } from "~/components/ui/button";
@@ -14,7 +14,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "~/components/ui/table";
-import { tokenContext } from "~/.server/middleware";
+import { requireToken, tokenContext } from "~/.server/middleware";
 import { getWallet, topUpWallet } from "~/.server/wallet";
 import { formatRupiah } from "~/lib/format";
 import { useActionFeedback } from "~/lib/hooks/use-action-feedback";
@@ -39,8 +39,7 @@ export async function loader({ context }: Route.LoaderArgs) {
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
-	const token = context.get(tokenContext);
-	if (!token) throw redirect("/login");
+	const token = requireToken(context);
 
 	const formData = await request.formData();
 	const parsed = topUpSchema.safeParse({ amount: formData.get("amount") });

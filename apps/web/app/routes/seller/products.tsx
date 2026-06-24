@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ImageOff } from "lucide-react";
-import { Link, redirect, useActionData, useSubmit } from "react-router";
+import { Link, useActionData, useSubmit } from "react-router";
 import { createProductSchema, type Product } from "@seapedia/shared";
 import type { Route } from "./+types/products";
 import { Button } from "~/components/ui/button";
@@ -17,7 +17,7 @@ import {
 	type ProductEditing,
 } from "~/components/product/product-dialog";
 import { ProductActions } from "~/components/product/product-actions";
-import { tokenContext } from "~/.server/middleware";
+import { requireToken, tokenContext } from "~/.server/middleware";
 import { getMyStore } from "~/.server/stores";
 import {
 	createProduct,
@@ -45,8 +45,7 @@ export async function loader({ context }: Route.LoaderArgs) {
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
-	const token = context.get(tokenContext);
-	if (!token) throw redirect("/login");
+	const token = requireToken(context);
 
 	const formData = await request.formData();
 	const intent = formData.get("intent");

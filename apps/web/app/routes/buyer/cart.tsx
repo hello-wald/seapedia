@@ -2,7 +2,6 @@ import type { Route } from "./+types/cart";
 import {
 	Form,
 	Link,
-	redirect,
 	useActionData,
 	useNavigation,
 	useSubmit,
@@ -12,7 +11,7 @@ import { toast } from "sonner";
 import { updateCartItemSchema } from "@seapedia/shared";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
-import { tokenContext } from "~/.server/middleware";
+import { requireToken, tokenContext } from "~/.server/middleware";
 import {
 	clearCart,
 	getCart,
@@ -36,8 +35,7 @@ export async function loader({ context }: Route.LoaderArgs) {
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
-	const token = context.get(tokenContext);
-	if (!token) throw redirect("/login");
+	const token = requireToken(context);
 
 	const formData = await request.formData();
 	const intent = String(formData.get("intent"));

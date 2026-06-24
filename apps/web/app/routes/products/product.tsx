@@ -3,7 +3,6 @@ import { useState } from "react";
 import {
 	Form,
 	Link,
-	redirect,
 	useActionData,
 	useNavigation,
 } from "react-router";
@@ -20,7 +19,7 @@ import {
 import { addToCartSchema } from "@seapedia/shared";
 import { getCatalogProduct } from "../../.server/products";
 import { addToCart } from "../../.server/cart";
-import { tokenContext } from "../../.server/middleware";
+import { requireToken } from "../../.server/middleware";
 import { formatRupiah } from "../../lib/format";
 import { Button } from "../../components/ui/button";
 import {
@@ -50,8 +49,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
-	const token = context.get(tokenContext);
-	if (!token) throw redirect("/login");
+	const token = requireToken(context);
 
 	const formData = await request.formData();
 	const parsed = addToCartSchema.safeParse({

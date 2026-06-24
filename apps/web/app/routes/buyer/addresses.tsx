@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { redirect, useActionData, useSubmit } from "react-router";
+import { useActionData, useSubmit } from "react-router";
 import { saveAddressSchema, type Address } from "@seapedia/shared";
 import type { Route } from "./+types/addresses";
 import { Button } from "~/components/ui/button";
@@ -15,7 +15,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { tokenContext } from "~/.server/middleware";
+import { requireToken, tokenContext } from "~/.server/middleware";
 import {
 	createAddress,
 	deleteAddress,
@@ -37,8 +37,7 @@ export async function loader({ context }: Route.LoaderArgs) {
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
-	const token = context.get(tokenContext);
-	if (!token) throw redirect("/login");
+	const token = requireToken(context);
 
 	const formData = await request.formData();
 	const intent = formData.get("intent");

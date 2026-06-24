@@ -3,7 +3,7 @@ import type { Role } from "@seapedia/shared";
 import type { Route } from "./+types/select-role";
 import { requireUser, safeNext, setActiveRole } from "~/.server/auth";
 import { createUserSession } from "~/.server/session";
-import { tokenContext, userContext } from "~/.server/middleware";
+import { requireToken, userContext } from "~/.server/middleware";
 import { ErrorBanner } from "../components/ui/form-banner";
 
 const ROLE_COPY: Record<string, { label: string; description: string }> = {
@@ -28,8 +28,7 @@ export function loader({ request, context }: Route.LoaderArgs) {
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
-	const token = context.get(tokenContext);
-	if (!token) throw redirect("/login");
+	const token = requireToken(context);
 
 	const formData = await request.formData();
 	const role = String(formData.get("role")) as Role;

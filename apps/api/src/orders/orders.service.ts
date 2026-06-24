@@ -118,7 +118,7 @@ export class OrdersService {
 			return order.id;
 		});
 
-		return this.getDetailForBuyer(userId, orderId);
+		return this.getDetail(userId, orderId);
 	}
 
 	// Buyer order history (newest first).
@@ -131,9 +131,12 @@ export class OrdersService {
 		return orders.map((o) => this.toSummary(o));
 	}
 
-	async getDetailForBuyer(userId: string, id: string) {
+	async getDetail(userId: string, id: string) {
 		const order = await this.prisma.order.findFirst({
-			where: { id, buyerId: userId },
+			where: {
+				id,
+				OR: [{ buyerId: userId }, { store: { sellerId: userId } }], // Buyer who bought or Seller of store
+			},
 			include: orderDetailInclude,
 		});
 		if (!order) {

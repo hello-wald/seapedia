@@ -53,10 +53,12 @@ export class OrdersController {
 
 	@Get(":id")
 	@UseGuards(JwtAuthGuard, RolesGuard)
-	@Roles("BUYER")
+	@Roles("BUYER", "SELLER")
 	@ApiBearerAuth("bearer")
-	@ApiOperation({ summary: "Get one of the current buyer's orders by id" })
-	getMine(@CurrentUser() user: JwtPayload, @Param("id") id: string) {
-		return this.ordersService.getDetailForBuyer(user.sub, id);
+	@ApiOperation({
+		summary: "Get order by id (for the buyer or the store's seller)",
+	})
+	getOne(@CurrentUser() user: JwtPayload, @Param("id") id: string) {
+		return this.ordersService.getDetail(user.sub, id);
 	}
 }

@@ -4,6 +4,7 @@ import { deliveryMethodSchema } from "./checkout";
 
 export const orderStatusSchema = z.enum([
 	"SEDANG_DIKEMAS",
+	"MENUNGGU_PENGIRIM",
 	"DIKIRIM",
 	"SELESAI",
 	"DIBATALKAN",
@@ -12,10 +13,18 @@ export type OrderStatus = z.infer<typeof orderStatusSchema>;
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
 	SEDANG_DIKEMAS: "Sedang Dikemas",
+	MENUNGGU_PENGIRIM: "Menunggu Pengirim",
 	DIKIRIM: "Dikirim",
 	SELESAI: "Selesai",
 	DIBATALKAN: "Dibatalkan",
 };
+
+export const ORDER_STATUS_FLOW = [
+	"SEDANG_DIKEMAS",
+	"MENUNGGU_PENGIRIM",
+	"DIKIRIM",
+	"SELESAI",
+] as const satisfies readonly OrderStatus[];
 
 export const orderItemSchema = z.object({
 	id: z.string(),

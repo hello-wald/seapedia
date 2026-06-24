@@ -16,3 +16,7 @@ export function getIncomingOrders(token: string) {
 export function checkout(token: string, input: CheckoutInput) {
 	return postJson<Order>("/api/orders/checkout", input, token);
 }
+
+export function processOrder(token: string, id: string) {
+	return postJson<OrderSummary>(`/api/orders/${id}/process`, {}, token);
+}

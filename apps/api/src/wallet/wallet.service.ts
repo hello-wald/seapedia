@@ -1,74 +1,84 @@
 import { ForbiddenException, Injectable } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
+import { Prisma, type WalletType } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class WalletService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	// Current balance plus the most recent transactions.
-	async getSummary(userId: string) {
-		const [user, transactions] = await Promise.all([
-			this.prisma.user.findUniqueOrThrow({
-				where: { id: userId },
-				select: { balance: true },
-			}),
-			this.prisma.walletTransaction.findMany({
-				where: { userId },
-				orderBy: { createdAt: "desc" },
-				take: 50,
-			}),
-		]);
-		return { balance: user.balance, transactions };
+	// Resolve (userId, type) wallet, creating it on first use.
+	private getOrCreate(
+		client: Prisma.TransactionClient,
+		userId: string,
+		type: WalletType,
+	) {
+		return client.wallet.upsert({
+			where: { userId_type: { userId, type } },
+			update: {},
+			create: { userId, type },
+		});
 	}
 
-	// Dummy top-up
+	// Current balance plus the most recent transactions.
+	async getSummary(userId: string, type: WalletType = "BUYER") {
+		const wallet = await this.getOrCreate(this.prisma, userId, type);
+		const transactions = await this.prisma.walletTransaction.findMany({
+			where: { walletId: wallet.id },
+			orderBy: { createdAt: "desc" },
+			take: 50,
+		});
+		return { balance: wallet.balance, transactions };
+	}
+
+	// Dummy top-up of buyer wallet.
 	async topUp(userId: string, amount: number) {
 		await this.prisma.$transaction(async (tx) => {
-			const user = await tx.user.update({
-				where: { id: userId },
+			const wallet = await this.getOrCreate(tx, userId, "BUYER");
+			const updated = await tx.wallet.update({
+				where: { id: wallet.id },
 				data: { balance: { increment: amount } },
-				select: { balance: true },
+				select: { id: true, balance: true },
 			});
 			await tx.walletTransaction.create({
 				data: {
-					userId,
+					walletId: updated.id,
 					type: "TOPUP",
 					amount,
-					balanceAfter: user.balance,
+					balanceAfter: updated.balance,
 					description: "Wallet top-up",
 				},
 			});
 		});
-		return this.getSummary(userId);
+		return this.getSummary(userId, "BUYER");
 	}
 
-	// Debit the wallet and record a transaction.
+	// Debit the buyer wallet and record a purchase.
 	async debit(
 		tx: Prisma.TransactionClient,
 		userId: string,
 		amount: number,
 		meta: { description: string; orderId?: string },
 	) {
-		const res = await tx.user.updateMany({
-			where: { id: userId, balance: { gte: amount } },
+		const wallet = await this.getOrCreate(tx, userId, "BUYER");
+		const res = await tx.wallet.updateMany({
+			where: { id: wallet.id, balance: { gte: amount } },
 			data: { balance: { decrement: amount } },
 		});
 		if (res.count === 0) {
 			throw new ForbiddenException("Insufficient balance");
 		}
 
-		const user = await tx.user.findUniqueOrThrow({
-			where: { id: userId },
+		const updated = await tx.wallet.findUniqueOrThrow({
+			where: { id: wallet.id },
 			select: { balance: true },
 		});
 		return tx.walletTransaction.create({
 			data: {
-				userId,
+				walletId: wallet.id,
 				orderId: meta.orderId ?? null,
 				type: "PURCHASE",
 				amount: -amount,
-				balanceAfter: user.balance,
+				balanceAfter: updated.balance,
 				description: meta.description,
 			},
 		});

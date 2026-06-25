@@ -8,3 +8,4 @@ export * from "./schemas/cart";
 export * from "./schemas/checkout";
 export * from "./schemas/order";
 export * from "./schemas/discount";
+export * from "./schemas/report";

@@ -6,7 +6,9 @@ import {
 } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import {
+	type BuyerSpendingReport,
 	type CheckoutInput,
+	type SellerIncomeReport,
 	computeDiscount,
 	computeOrderTotals,
 } from "@seapedia/shared";
@@ -221,6 +223,63 @@ export class OrdersService {
 		});
 
 		return this.toSummary(updated);
+	}
+
+	// Buyer spending report.
+	async buyerReport(userId: string): Promise<BuyerSpendingReport> {
+		const orders = await this.prisma.order.findMany({
+			where: { buyerId: userId, status: { not: "DIBATALKAN" } },
+			select: {
+				total: true,
+				discount: true,
+				items: { select: { quantity: true } },
+			},
+		});
+		return orders.reduce<BuyerSpendingReport>(
+			(acc, o) => ({
+				totalSpent: acc.totalSpent + o.total,
+				ordersPlaced: acc.ordersPlaced + 1,
+				itemsBought:
+					acc.itemsBought +
+					o.items.reduce((s, i) => s + i.quantity, 0),
+				totalSaved: acc.totalSaved + o.discount,
+			}),
+			{ totalSpent: 0, ordersPlaced: 0, itemsBought: 0, totalSaved: 0 },
+		);
+	}
+
+	// Seller income report.
+	async sellerReport(payload: JwtPayload): Promise<SellerIncomeReport> {
+		const empty: SellerIncomeReport = {
+			completedIncome: 0,
+			pendingIncome: 0,
+			completedOrders: 0,
+			itemsSold: 0,
+		};
+		const store = await this.prisma.store.findUnique({
+			where: { sellerId: payload.sub },
+			select: { id: true },
+		});
+		if (!store) return empty;
+
+		const orders = await this.prisma.order.findMany({
+			where: { storeId: store.id, status: { not: "DIBATALKAN" } },
+			select: {
+				subtotal: true,
+				status: true,
+				items: { select: { quantity: true } },
+			},
+		});
+		return orders.reduce<SellerIncomeReport>((acc, o) => {
+			const completed = o.status === "SELESAI";
+			return {
+				completedIncome: acc.completedIncome + (completed ? o.subtotal : 0),
+				pendingIncome: acc.pendingIncome + (completed ? 0 : o.subtotal),
+				completedOrders: acc.completedOrders + (completed ? 1 : 0),
+				itemsSold:
+					acc.itemsSold + o.items.reduce((s, i) => s + i.quantity, 0),
+			};
+		}, empty);
 	}
 
 	private toDetail(order: OrderWithDetail) {

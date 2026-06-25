@@ -40,6 +40,24 @@ export class OrdersController {
 		return this.ordersService.listIncoming(user);
 	}
 
+	@Get("report")
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Roles("BUYER")
+	@ApiBearerAuth("bearer")
+	@ApiOperation({ summary: "Buyer spending report (amount spent & items bought)" })
+	buyerReport(@CurrentUser() user: JwtPayload) {
+		return this.ordersService.buyerReport(user.sub);
+	}
+
+	@Get("incoming/report")
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Roles("SELLER")
+	@ApiBearerAuth("bearer")
+	@ApiOperation({ summary: "Seller income report (amount earned & items sold)" })
+	sellerReport(@CurrentUser() user: JwtPayload) {
+		return this.ordersService.sellerReport(user);
+	}
+
 	@Post(":id/process")
 	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Roles("SELLER")

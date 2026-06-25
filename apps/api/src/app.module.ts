@@ -10,6 +10,7 @@ import { WalletModule } from "./wallet/wallet.module";
 import { AddressesModule } from "./addresses/addresses.module";
 import { CartModule } from "./cart/cart.module";
 import { OrdersModule } from "./orders/orders.module";
+import { DeliveryModule } from "./delivery/delivery.module";
 import { DiscountsModule } from "./discounts/discounts.module";
 
 @Module({
@@ -24,6 +25,7 @@ import { DiscountsModule } from "./discounts/discounts.module";
 		AddressesModule,
 		CartModule,
 		OrdersModule,
+		DeliveryModule,
 		DiscountsModule,
 	],
 	controllers: [AppController],

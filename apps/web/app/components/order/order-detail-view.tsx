@@ -15,12 +15,14 @@ import { OrderStatusTracker } from "~/components/order/order-status-tracker";
 interface OrderDetailViewProps {
 	order: Order;
 	backHref: string;
+	backLabel?: string;
 	action?: ReactNode;
 }
 
 export function OrderDetailView({
 	order,
 	backHref,
+	backLabel = "Back to orders",
 	action,
 }: OrderDetailViewProps) {
 	return (
@@ -30,7 +32,7 @@ export function OrderDetailView({
 					to={backHref}
 					className="text-sm text-brand-700 hover:underline"
 				>
-					← Back to orders
+					← {backLabel}
 				</Link>
 				<div className="flex justify-between mt-2 h-8 gap-4">
 					<div className="flex items-center gap-3">

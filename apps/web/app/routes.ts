@@ -42,6 +42,7 @@ export default [
 	route("driver", "routes/driver/layout.tsx", [
 		index("routes/driver/home.tsx"),
 		route("jobs", "routes/driver/jobs.tsx"),
+		route("jobs/:id", "routes/driver/jobs-detail.tsx"),
 	]),
 	route("admin", "routes/admin/layout.tsx", [index("routes/admin/home.tsx")]),
 ] satisfies RouteConfig;

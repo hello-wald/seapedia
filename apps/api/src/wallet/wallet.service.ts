@@ -1,27 +1,23 @@
 import { ForbiddenException, Injectable } from "@nestjs/common";
-import { Prisma, type WalletType } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class WalletService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	// Resolve (userId, type) wallet, creating it on first use.
-	private getOrCreate(
-		client: Prisma.TransactionClient,
-		userId: string,
-		type: WalletType,
-	) {
+	// Resolve the buyer's wallet, creating it on first use.
+	private getOrCreate(client: Prisma.TransactionClient, userId: string) {
 		return client.wallet.upsert({
-			where: { userId_type: { userId, type } },
+			where: { userId },
 			update: {},
-			create: { userId, type },
+			create: { userId },
 		});
 	}
 
 	// Current balance plus the most recent transactions.
-	async getSummary(userId: string, type: WalletType = "BUYER") {
-		const wallet = await this.getOrCreate(this.prisma, userId, type);
+	async getSummary(userId: string) {
+		const wallet = await this.getOrCreate(this.prisma, userId);
 		const transactions = await this.prisma.walletTransaction.findMany({
 			where: { walletId: wallet.id },
 			orderBy: { createdAt: "desc" },
@@ -30,10 +26,10 @@ export class WalletService {
 		return { balance: wallet.balance, transactions };
 	}
 
-	// Dummy top-up of buyer wallet.
+	// Dummy top-up of the buyer wallet.
 	async topUp(userId: string, amount: number) {
 		await this.prisma.$transaction(async (tx) => {
-			const wallet = await this.getOrCreate(tx, userId, "BUYER");
+			const wallet = await this.getOrCreate(tx, userId);
 			const updated = await tx.wallet.update({
 				where: { id: wallet.id },
 				data: { balance: { increment: amount } },
@@ -49,7 +45,7 @@ export class WalletService {
 				},
 			});
 		});
-		return this.getSummary(userId, "BUYER");
+		return this.getSummary(userId);
 	}
 
 	// Debit the buyer wallet and record a purchase.
@@ -59,7 +55,7 @@ export class WalletService {
 		amount: number,
 		meta: { description: string; orderId?: string },
 	) {
-		const wallet = await this.getOrCreate(tx, userId, "BUYER");
+		const wallet = await this.getOrCreate(tx, userId);
 		const res = await tx.wallet.updateMany({
 			where: { id: wallet.id, balance: { gte: amount } },
 			data: { balance: { decrement: amount } },

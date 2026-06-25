@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
-import type { User, UserRole, WalletType } from "@prisma/client";
+import type { User, UserRole } from "@prisma/client";
 import type {
 	AuthResponse,
 	LoginInput,
@@ -96,27 +96,6 @@ export class AuthService {
 		}
 
 		return this.toPublicUser(user, payload.activeRole);
-	}
-
-	// Get balance summary across roles.
-	async getBalanceSummary(payload: JwtPayload) {
-		const owns = (role: Role) => payload.roles.includes(role);
-		const wallets = await this.prisma.wallet.findMany({
-			where: { userId: payload.sub },
-			select: { type: true, balance: true },
-		});
-		const balanceOf = (type: WalletType) =>
-			wallets.find((w) => w.type === type)?.balance ?? 0;
-		return {
-			activeRole: payload.activeRole,
-			wallet: owns("BUYER") ? { balance: balanceOf("BUYER") } : null,
-			sellerIncome: owns("SELLER")
-				? { total: balanceOf("SELLER") }
-				: null,
-			driverEarnings: owns("DRIVER")
-				? { total: balanceOf("DRIVER") }
-				: null,
-		};
 	}
 
 	// Select default role, null if multiple

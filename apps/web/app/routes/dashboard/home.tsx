@@ -1,11 +1,12 @@
 import { Link } from "react-router";
 import type { Route } from "./+types/home";
-import { requireActiveRole, getBalance } from "~/.server/auth";
+import { requireActiveRole } from "~/.server/auth";
 import { tokenContext, userContext } from "~/.server/middleware";
 import { DashboardLayout } from "~/components/layout/dashboard-layout";
 import { ROLE_LABEL } from "~/lib/constants";
 import { formatRupiah } from "~/lib/format";
 import { Button } from "~/components/ui/button";
+import { getBalance } from "~/.server/reports";
 
 export function meta() {
 	return [{ title: "Profile · SEApedia" }];
@@ -35,9 +36,12 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
 		{
 			label: "Seller income",
 			role: "SELLER",
-			value: null,
-			href: null,
-			cta: null,
+			value:
+				balance?.sellerIncome != null
+					? formatRupiah(balance.sellerIncome.total ?? 0)
+					: null,
+			href: "/seller/orders",
+			cta: "View",
 		},
 		{
 			label: "Driver earnings",

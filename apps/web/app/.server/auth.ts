@@ -24,17 +24,6 @@ export function me(token: string) {
 	return getJson<User>("/api/auth/me", token);
 }
 
-export interface BalanceSummary {
-	activeRole: Role | null;
-	wallet: { balance: number | null } | null;
-	sellerIncome: { total: number | null } | null;
-	driverEarnings: { total: number | null } | null;
-}
-
-export function getBalance(token: string) {
-	return getJson<BalanceSummary>("/api/auth/balance", token);
-}
-
 // Sanitize a redirect target: only allow same-origin paths
 export function safeNext(value: FormDataEntryValue | string | null): string {
 	const next = typeof value === "string" ? value : "";

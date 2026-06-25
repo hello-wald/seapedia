@@ -6,8 +6,10 @@ import {
 } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import {
+	type BalanceSummary,
 	type BuyerSpendingReport,
 	type CheckoutInput,
+	type Role,
 	type SellerIncomeReport,
 	computeDiscount,
 	computeOrderTotals,
@@ -282,6 +284,39 @@ export class OrdersService {
 					acc.itemsSold + o.items.reduce((s, i) => s + i.quantity, 0),
 			};
 		}, empty);
+	}
+
+	private async sellerReceivedIncome(sellerId: string): Promise<number> {
+		const store = await this.prisma.store.findUnique({
+			where: { sellerId },
+			select: { id: true },
+		});
+		if (!store) return 0;
+		const agg = await this.prisma.order.aggregate({
+			where: { storeId: store.id, status: "SELESAI" },
+			_sum: { subtotal: true },
+		});
+		return agg._sum.subtotal ?? 0;
+	}
+
+	// Cross-role balance summary
+	async getBalanceSummary(payload: JwtPayload): Promise<BalanceSummary> {
+		const owns = (role: Role) => payload.roles.includes(role);
+		const [wallet, sellerIncome] = await Promise.all([
+			owns("BUYER")
+				? this.prisma.wallet.findUnique({
+						where: { userId: payload.sub },
+						select: { balance: true },
+					})
+				: null,
+			owns("SELLER") ? this.sellerReceivedIncome(payload.sub) : null,
+		]);
+		return {
+			activeRole: payload.activeRole,
+			wallet: owns("BUYER") ? { balance: wallet?.balance ?? 0 } : null,
+			sellerIncome: owns("SELLER") ? { total: sellerIncome ?? 0 } : null,
+			driverEarnings: owns("DRIVER") ? { total: null } : null,
+		};
 	}
 
 	private toDetail(order: OrderWithDetail) {

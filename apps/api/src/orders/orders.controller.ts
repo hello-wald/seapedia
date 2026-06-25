@@ -58,6 +58,14 @@ export class OrdersController {
 		return this.ordersService.sellerReport(user);
 	}
 
+	@Get("balance")
+	@UseGuards(JwtAuthGuard)
+	@ApiBearerAuth("bearer")
+	@ApiOperation({ summary: "Balance summary across the user's roles" })
+	balance(@CurrentUser() user: JwtPayload) {
+		return this.ordersService.getBalanceSummary(user);
+	}
+
 	@Post(":id/process")
 	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Roles("SELLER")

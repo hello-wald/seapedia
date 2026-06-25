@@ -50,12 +50,4 @@ export class AuthController {
 	) {
 		return this.authService.setActiveRole(user, dto.role);
 	}
-
-	@Get("balance")
-	@UseGuards(JwtAuthGuard)
-	@ApiBearerAuth("bearer")
-	@ApiOperation({ summary: "Get the balance summary for the active role" })
-	balance(@CurrentUser() user: JwtPayload) {
-		return this.authService.getBalanceSummary(user);
-	}
 }

@@ -74,8 +74,7 @@ export class AddressesService {
 
 		await this.prisma.$transaction(async (tx) => {
 			await tx.address.delete({ where: { id } });
-			// If we removed the default, promote the next newest address so the
-			// buyer always has a default for checkout to pick.
+			// If we removed the default, promote the next newest address.
 			if (address.isDefault) {
 				const next = await tx.address.findFirst({
 					where: { userId },

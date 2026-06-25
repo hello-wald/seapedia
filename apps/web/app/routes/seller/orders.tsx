@@ -12,8 +12,10 @@ import {
 } from "~/components/ui/table";
 import { tokenContext } from "~/.server/middleware";
 import { getIncomingOrders } from "~/.server/orders";
+import { getSellerReport } from "~/.server/reports";
 import { formatRupiah } from "~/lib/format";
 import { OrderStatusBadge } from "~/components/order/order-status-badge";
+import { ReportCards } from "~/components/report/report-cards";
 
 export function meta() {
 	return [{ title: "Incoming orders · SEApedia" }];
@@ -21,14 +23,42 @@ export function meta() {
 
 export async function loader({ context }: Route.LoaderArgs) {
 	const token = context.get(tokenContext);
-	if (!token) return { orders: [] as OrderSummary[] };
-	const orders = await getIncomingOrders(token);
-	return { orders: orders ?? [] };
+	if (!token) return { orders: [] as OrderSummary[], report: null };
+	const [orders, report] = await Promise.all([
+		getIncomingOrders(token),
+		getSellerReport(token),
+	]);
+	return { orders: orders ?? [], report };
 }
 
 export default function SellerOrders({ loaderData }: Route.ComponentProps) {
-	const { orders } = loaderData;
+	const { orders, report } = loaderData;
 	const navigate = useNavigate();
+
+	const stats = report
+		? [
+				{
+					label: "Completed income",
+					value: formatRupiah(report.completedIncome),
+					caption: "From completed orders",
+				},
+				{
+					label: "Pending income",
+					value: formatRupiah(report.pendingIncome),
+					caption: "Awaiting delivery completion",
+				},
+				{
+					label: "Completed orders",
+					value: String(report.completedOrders),
+					caption: "Delivered & finalized",
+				},
+				{
+					label: "Items sold",
+					value: String(report.itemsSold),
+					caption: "Total units sold",
+				},
+			]
+		: [];
 
 	return (
 		<div>
@@ -39,6 +69,12 @@ export default function SellerOrders({ loaderData }: Route.ComponentProps) {
 				Orders placed for your store's products. Process an order to
 				make it available for pickup.
 			</p>
+
+			{stats.length > 0 && (
+				<div className="mt-6">
+					<ReportCards stats={stats} />
+				</div>
+			)}
 
 			{orders.length === 0 ? (
 				<div className="mt-6 rounded-lg border border-dashed p-10 text-center">

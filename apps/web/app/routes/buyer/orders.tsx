@@ -13,8 +13,10 @@ import {
 } from "~/components/ui/table";
 import { tokenContext } from "~/.server/middleware";
 import { getOrders } from "~/.server/orders";
+import { getBuyerReport } from "~/.server/reports";
 import { formatRupiah } from "~/lib/format";
 import { OrderStatusBadge } from "~/components/order/order-status-badge";
+import { ReportCards } from "~/components/report/report-cards";
 
 export function meta() {
 	return [{ title: "Orders · SEApedia" }];
@@ -22,14 +24,42 @@ export function meta() {
 
 export async function loader({ context }: Route.LoaderArgs) {
 	const token = context.get(tokenContext);
-	if (!token) return { orders: [] as OrderSummary[] };
-	const orders = await getOrders(token);
-	return { orders: orders ?? [] };
+	if (!token) return { orders: [] as OrderSummary[], report: null };
+	const [orders, report] = await Promise.all([
+		getOrders(token),
+		getBuyerReport(token),
+	]);
+	return { orders: orders ?? [], report };
 }
 
 export default function BuyerOrders({ loaderData }: Route.ComponentProps) {
-	const { orders } = loaderData;
+	const { orders, report } = loaderData;
 	const navigate = useNavigate();
+
+	const stats = report
+		? [
+				{
+					label: "Total spent",
+					value: formatRupiah(report.totalSpent),
+					caption: "Across all your orders",
+				},
+				{
+					label: "Orders placed",
+					value: String(report.ordersPlaced),
+					caption: "Excludes cancelled",
+				},
+				{
+					label: "Items bought",
+					value: String(report.itemsBought),
+					caption: "Total units ordered",
+				},
+				{
+					label: "Total saved",
+					value: formatRupiah(report.totalSaved),
+					caption: "From vouchers & promos",
+				},
+			]
+		: [];
 
 	return (
 		<div>
@@ -37,6 +67,12 @@ export default function BuyerOrders({ loaderData }: Route.ComponentProps) {
 			<p className="mt-1 text-sm text-muted">
 				Track the orders you've placed.
 			</p>
+
+			{stats.length > 0 && (
+				<div className="mt-6">
+					<ReportCards stats={stats} />
+				</div>
+			)}
 
 			{orders.length === 0 ? (
 				<div className="mt-6 rounded-lg border border-dashed p-10 text-center">

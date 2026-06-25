@@ -251,7 +251,7 @@ export class OrdersService {
 	// Seller income report.
 	async sellerReport(payload: JwtPayload): Promise<SellerIncomeReport> {
 		const empty: SellerIncomeReport = {
-			completedIncome: 0,
+			receivedIncome: 0,
 			pendingIncome: 0,
 			completedOrders: 0,
 			itemsSold: 0,
@@ -273,7 +273,8 @@ export class OrdersService {
 		return orders.reduce<SellerIncomeReport>((acc, o) => {
 			const completed = o.status === "SELESAI";
 			return {
-				completedIncome: acc.completedIncome + (completed ? o.subtotal : 0),
+				receivedIncome:
+					acc.receivedIncome + (completed ? o.subtotal : 0),
 				pendingIncome: acc.pendingIncome + (completed ? 0 : o.subtotal),
 				completedOrders: acc.completedOrders + (completed ? 1 : 0),
 				itemsSold:

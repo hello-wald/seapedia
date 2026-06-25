@@ -9,7 +9,7 @@ export const buyerSpendingReportSchema = z.object({
 export type BuyerSpendingReport = z.infer<typeof buyerSpendingReportSchema>;
 
 export const sellerIncomeReportSchema = z.object({
-	completedIncome: z.number().int(),
+	receivedIncome: z.number().int(),
 	pendingIncome: z.number().int(),
 	completedOrders: z.number().int(),
 	itemsSold: z.number().int(),

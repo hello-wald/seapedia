@@ -38,8 +38,8 @@ export default function SellerOrders({ loaderData }: Route.ComponentProps) {
 	const stats = report
 		? [
 				{
-					label: "Completed income",
-					value: formatRupiah(report.completedIncome),
+					label: "Received income",
+					value: formatRupiah(report.receivedIncome),
 					caption: "From completed orders",
 				},
 				{

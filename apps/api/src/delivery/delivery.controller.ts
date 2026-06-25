@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from "@nestjs/common";
+import { Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { DeliveryService } from "./delivery.service";
 import { JwtAuthGuard } from "../auth/guard/jwt-auth.guard";
@@ -21,11 +21,31 @@ export class DeliveryController {
 		return this.deliveryService.listAvailable();
 	}
 
+	@Get("mine")
+	@ApiOperation({ summary: "List the driver's in-progress (taken) jobs" })
+	listMine(@CurrentUser() user: JwtPayload) {
+		return this.deliveryService.listMine(user.sub);
+	}
+
 	@Get(":id")
 	@ApiOperation({
 		summary: "Get a delivery job's detail (available or assigned to the driver)",
 	})
 	getDetail(@CurrentUser() user: JwtPayload, @Param("id") id: string) {
 		return this.deliveryService.getDetail(user.sub, id);
+	}
+
+	@Post(":id/take")
+	@ApiOperation({ summary: "Take an available delivery job (order → Dikirim)" })
+	take(@CurrentUser() user: JwtPayload, @Param("id") id: string) {
+		return this.deliveryService.takeJob(user.sub, id);
+	}
+
+	@Post(":id/complete")
+	@ApiOperation({
+		summary: "Confirm a taken job as delivered (order → Selesai)",
+	})
+	complete(@CurrentUser() user: JwtPayload, @Param("id") id: string) {
+		return this.deliveryService.completeJob(user.sub, id);
 	}
 }

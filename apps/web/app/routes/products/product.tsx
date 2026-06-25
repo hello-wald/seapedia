@@ -19,7 +19,7 @@ import {
 import { addToCartSchema } from "@seapedia/shared";
 import { getCatalogProduct } from "../../.server/products";
 import { addToCart } from "../../.server/cart";
-import { requireToken } from "../../.server/middleware";
+import { requireToken, userContext } from "../../.server/middleware";
 import { formatRupiah } from "../../lib/format";
 import { Button } from "../../components/ui/button";
 import {
@@ -43,9 +43,10 @@ export function meta({ loaderData }: Route.MetaArgs) {
 	];
 }
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, context }: Route.LoaderArgs) {
 	const product = await getCatalogProduct(params.id);
-	return { product };
+	const user = context.get(userContext);
+	return { product, isBuyer: user?.activeRole === "BUYER" };
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
@@ -81,7 +82,7 @@ export async function action({ request, context }: Route.ActionArgs) {
 }
 
 export default function ProductDetail({ loaderData }: Route.ComponentProps) {
-	const { product } = loaderData;
+	const { product, isBuyer } = loaderData;
 	const actionData = useActionData<typeof action>();
 	const navigation = useNavigation();
 	const submitting = navigation.state === "submitting";
@@ -138,7 +139,13 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
 					Back to products
 				</Link>
 
-				<div className="grid gap-8 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)_300px]">
+				<div
+					className={`grid gap-8 ${
+						isBuyer
+							? "lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)_300px]"
+							: "lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]"
+					}`}
+				>
 					{/* Image area */}
 					<div className="flex aspect-square items-center justify-center overflow-hidden rounded-2xl bg-gray-100 text-gray-400 border">
 						{product.imageUrl ? (
@@ -203,6 +210,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
 						</div>
 					</div>
 
+					{isBuyer && (
 					<div className="lg:sticky lg:top-6 h-fit rounded-xl border bg-surface p-5">
 						<h2 className="text-sm font-semibold text-gray-900">
 							Set quantity
@@ -271,6 +279,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
 							</Button>
 						</Form>
 					</div>
+					)}
 				</div>
 			</div>
 

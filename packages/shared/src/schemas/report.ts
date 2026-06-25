@@ -17,6 +17,14 @@ export const sellerIncomeReportSchema = z.object({
 });
 export type SellerIncomeReport = z.infer<typeof sellerIncomeReportSchema>;
 
+export const driverEarningsReportSchema = z.object({
+	totalEarnings: z.number().int(),
+	completedJobs: z.number().int(),
+	activeJobs: z.number().int(),
+	itemsDelivered: z.number().int(),
+});
+export type DriverEarningsReport = z.infer<typeof driverEarningsReportSchema>;
+
 export const balanceSummarySchema = z.object({
 	activeRole: roleSchema.nullable(),
 	wallet: z.object({ balance: z.number().int().nullable() }).nullable(),

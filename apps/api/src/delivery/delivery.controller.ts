@@ -16,7 +16,9 @@ export class DeliveryController {
 	constructor(private readonly deliveryService: DeliveryService) {}
 
 	@Get()
-	@ApiOperation({ summary: "List delivery jobs available for drivers to take" })
+	@ApiOperation({
+		summary: "List delivery jobs available for drivers to take",
+	})
 	listAvailable() {
 		return this.deliveryService.listAvailable();
 	}
@@ -27,16 +29,31 @@ export class DeliveryController {
 		return this.deliveryService.listMine(user.sub);
 	}
 
+	@Get("report")
+	@ApiOperation({ summary: "Driver earnings summary" })
+	report(@CurrentUser() user: JwtPayload) {
+		return this.deliveryService.report(user.sub);
+	}
+
+	@Get("history")
+	@ApiOperation({ summary: "List the driver's completed (delivered) jobs" })
+	listHistory(@CurrentUser() user: JwtPayload) {
+		return this.deliveryService.listCompleted(user.sub);
+	}
+
 	@Get(":id")
 	@ApiOperation({
-		summary: "Get a delivery job's detail (available or assigned to the driver)",
+		summary:
+			"Get a delivery job's detail (available or assigned to the driver)",
 	})
 	getDetail(@CurrentUser() user: JwtPayload, @Param("id") id: string) {
 		return this.deliveryService.getDetail(user.sub, id);
 	}
 
 	@Post(":id/take")
-	@ApiOperation({ summary: "Take an available delivery job (order → Dikirim)" })
+	@ApiOperation({
+		summary: "Take an available delivery job",
+	})
 	take(@CurrentUser() user: JwtPayload, @Param("id") id: string) {
 		return this.deliveryService.takeJob(user.sub, id);
 	}

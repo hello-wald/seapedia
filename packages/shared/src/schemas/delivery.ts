@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicStoreSchema } from "./store";
 import { deliveryMethodSchema } from "./checkout";
-import { orderSchema } from "./order";
+import { orderSchema, orderStatusSchema } from "./order";
 
 export const deliverySummarySchema = z.object({
 	id: z.string(),
@@ -13,6 +13,8 @@ export const deliverySummarySchema = z.object({
 	city: z.string(),
 	province: z.string(),
 	totalItems: z.number().int(),
+	status: orderStatusSchema,
+	completedAt: z.string().datetime().nullable(),
 	createdAt: z.string().datetime(),
 });
 export type DeliverySummary = z.infer<typeof deliverySummarySchema>;

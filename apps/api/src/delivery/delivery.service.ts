@@ -6,6 +6,7 @@ import {
 	NotFoundException,
 } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
+import type { DriverEarningsReport } from "@seapedia/shared";
 import { PrismaService } from "../prisma/prisma.service";
 import {
 	orderDetailInclude,
@@ -186,6 +187,51 @@ export class DeliveryService {
 		};
 	}
 
+	// The driver's completed jobs, newest first.
+	async listCompleted(driverId: string) {
+		const deliveries = await this.prisma.delivery.findMany({
+			where: { driverId, order: { status: "SELESAI" } },
+			orderBy: { completedAt: "desc" },
+			include: deliveryListInclude,
+		});
+		return deliveries.map((d) => this.toSummary(d));
+	}
+
+	// Earnings summary: a driver earns completed job's delivery fee.
+	async report(driverId: string): Promise<DriverEarningsReport> {
+		const completed = await this.prisma.delivery.findMany({
+			where: { driverId, order: { status: "SELESAI" } },
+			select: {
+				order: {
+					select: {
+						deliveryFee: true,
+						items: { select: { quantity: true } },
+					},
+				},
+			},
+		});
+		const activeJobs = await this.prisma.delivery.count({
+			where: { driverId, order: { status: "DIKIRIM" } },
+		});
+
+		return completed.reduce<DriverEarningsReport>(
+			(acc, d) => ({
+				totalEarnings: acc.totalEarnings + d.order.deliveryFee,
+				completedJobs: acc.completedJobs + 1,
+				activeJobs: acc.activeJobs,
+				itemsDelivered:
+					acc.itemsDelivered +
+					d.order.items.reduce((s, i) => s + i.quantity, 0),
+			}),
+			{
+				totalEarnings: 0,
+				completedJobs: 0,
+				activeJobs,
+				itemsDelivered: 0,
+			},
+		);
+	}
+
 	private toSummary(delivery: DeliveryWithOrder) {
 		const { order } = delivery;
 		return {
@@ -198,6 +244,8 @@ export class DeliveryService {
 			city: order.city,
 			province: order.province,
 			totalItems: order.items.reduce((sum, i) => sum + i.quantity, 0),
+			status: order.status,
+			completedAt: delivery.completedAt,
 			createdAt: delivery.createdAt,
 		};
 	}

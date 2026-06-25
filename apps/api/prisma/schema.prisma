@@ -19,12 +19,11 @@ model User {
   name         String
   email        String              @unique
   password     String
-  balance      Int                 @default(0) 
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
   roles        UserRole[]
   store        Store?
-  wallets      Wallet[]
+  wallet       Wallet?
   addresses    Address[]
   cart         Cart?
   orders       Order[]
@@ -100,24 +99,14 @@ enum WalletTransactionType {
   REFUND
 }
 
-enum WalletType {
-  BUYER
-  SELLER
-  DRIVER
-}
-
 model Wallet {
   id           String              @id @default(cuid())
-  userId       String
+  userId       String              @unique
   user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type         WalletType
   balance      Int                 @default(0)
   transactions WalletTransaction[]
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
-
-  @@unique([userId, type])
-  @@index([userId])
 }
 
 model WalletTransaction {

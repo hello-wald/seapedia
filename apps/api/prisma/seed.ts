@@ -188,11 +188,10 @@ async function seedBuyer() {
 	});
 
 	const buyerWallet = await prisma.wallet.upsert({
-		where: { userId_type: { userId: buyer.id, type: "BUYER" } },
+		where: { userId: buyer.id },
 		update: {},
 		create: {
 			userId: buyer.id,
-			type: "BUYER",
 			balance: BUYER_INITIAL_BALANCE,
 		},
 	});

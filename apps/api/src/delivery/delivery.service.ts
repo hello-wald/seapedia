@@ -1,6 +1,14 @@
-import { Injectable } from "@nestjs/common";
+import {
+	ForbiddenException,
+	Injectable,
+	NotFoundException,
+} from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
+import {
+	orderDetailInclude,
+	toOrderDetail,
+} from "../orders/order-detail.mapper";
 
 const deliveryListInclude = {
 	order: {
@@ -15,11 +23,15 @@ type DeliveryWithOrder = Prisma.DeliveryGetPayload<{
 	include: typeof deliveryListInclude;
 }>;
 
+const deliveryDetailInclude = {
+	order: { include: orderDetailInclude },
+} satisfies Prisma.DeliveryInclude;
+
 @Injectable()
 export class DeliveryService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	// Jobs ready to be picked up: unclaimed and the order is awaiting a driver.
+	// Jobs ready to be picked up
 	async listAvailable() {
 		const deliveries = await this.prisma.delivery.findMany({
 			where: {
@@ -30,6 +42,35 @@ export class DeliveryService {
 			include: deliveryListInclude,
 		});
 		return deliveries.map((d) => this.toSummary(d));
+	}
+
+	// Job's detail
+	async getDetail(driverId: string, id: string) {
+		const delivery = await this.prisma.delivery.findUnique({
+			where: { id },
+			include: deliveryDetailInclude,
+		});
+		if (!delivery) {
+			throw new NotFoundException("Delivery job not found");
+		}
+
+		const available =
+			delivery.driverId === null &&
+			delivery.order.status === "MENUNGGU_PENGIRIM";
+		const mine = delivery.driverId === driverId;
+		if (!available && !mine) {
+			throw new ForbiddenException(
+				"This job is assigned to another driver",
+			);
+		}
+
+		return {
+			...toOrderDetail(delivery.order),
+			deliveryId: delivery.id,
+			driverId: delivery.driverId,
+			takenAt: delivery.takenAt,
+			completedAt: delivery.completedAt,
+		};
 	}
 
 	private toSummary(delivery: DeliveryWithOrder) {

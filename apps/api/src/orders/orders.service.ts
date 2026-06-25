@@ -216,6 +216,7 @@ export class OrdersService {
 			await tx.orderStatusHistory.create({
 				data: { orderId: id, status: "MENUNGGU_PENGIRIM" },
 			});
+			await tx.delivery.create({ data: { orderId: id } });
 			return tx.order.findUniqueOrThrow({
 				where: { id },
 				include: orderDetailInclude,

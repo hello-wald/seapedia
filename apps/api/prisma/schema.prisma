@@ -28,6 +28,7 @@ model User {
   addresses    Address[]
   cart         Cart?
   orders       Order[]
+  deliveries   Delivery[]          @relation("DriverDeliveries")
 }
 
 model Store {
@@ -200,6 +201,7 @@ model Order {
   items          OrderItem[]
   statusHistory  OrderStatusHistory[]
   transactions   WalletTransaction[]
+  delivery       Delivery?
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
 
@@ -229,6 +231,20 @@ model OrderStatusHistory {
   createdAt DateTime    @default(now())
 
   @@index([orderId])
+}
+
+model Delivery {
+  id          String    @id @default(cuid())
+  orderId     String    @unique
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  driverId    String?
+  driver      User?     @relation("DriverDeliveries", fields: [driverId], references: [id], onDelete: SetNull)
+  takenAt     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([driverId])
 }
 
 model Address {

@@ -9,7 +9,6 @@ interface NavItem {
 
 const ROLE_NAV: Record<Role, NavItem[]> = {
 	BUYER: [
-		{ to: "/buyer", label: "Overview", end: true },
 		{ to: "/buyer/wallet", label: "Wallet" },
 		{ to: "/buyer/addresses", label: "Addresses" },
 		{ to: "/buyer/orders", label: "Orders" },
@@ -20,7 +19,6 @@ const ROLE_NAV: Record<Role, NavItem[]> = {
 		{ to: "/seller/orders", label: "Orders" },
 	],
 	DRIVER: [
-		{ to: "/driver", label: "Overview", end: true },
 		{ to: "/driver/find", label: "Find jobs" },
 		{ to: "/driver/jobs", label: "Jobs" },
 	],

@@ -26,7 +26,7 @@ export default [
 		route("cart", "routes/buyer/cart.tsx"),
 		route("checkout", "routes/buyer/checkout.tsx"),
 		route("buyer", "routes/buyer/layout.tsx", [
-			index("routes/buyer/home.tsx"),
+			index("routes/buyer/index.tsx"),
 			route("wallet", "routes/buyer/wallet.tsx"),
 			route("addresses", "routes/buyer/addresses.tsx"),
 			route("orders", "routes/buyer/orders.tsx"),
@@ -40,7 +40,7 @@ export default [
 		route("orders/:id", "routes/seller/order-detail.tsx"),
 	]),
 	route("driver", "routes/driver/layout.tsx", [
-		index("routes/driver/home.tsx"),
+		index("routes/driver/index.tsx"),
 		route("find", "routes/driver/find.tsx"),
 		route("jobs", "routes/driver/jobs.tsx"),
 		route("jobs/:id", "routes/driver/jobs-detail.tsx"),

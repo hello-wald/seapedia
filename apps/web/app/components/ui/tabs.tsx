@@ -1,0 +1,51 @@
+import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
+
+import { cn } from "~/lib/utils";
+
+function Tabs({ className, ...props }: TabsPrimitive.Root.Props) {
+	return (
+		<TabsPrimitive.Root
+			data-slot="tabs"
+			className={cn("flex flex-col gap-4", className)}
+			{...props}
+		/>
+	);
+}
+
+function TabsList({ className, ...props }: TabsPrimitive.List.Props) {
+	return (
+		<TabsPrimitive.List
+			data-slot="tabs-list"
+			className={cn(
+				"inline-flex w-fit items-center gap-1 rounded-lg border bg-surface p-1",
+				className,
+			)}
+			{...props}
+		/>
+	);
+}
+
+function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
+	return (
+		<TabsPrimitive.Tab
+			data-slot="tabs-trigger"
+			className={cn(
+				"group inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-muted transition-colors outline-none select-none cursor:pointer data-active:bg-brand-600 data-active:text-surface",
+				className,
+			)}
+			{...props}
+		/>
+	);
+}
+
+function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
+	return (
+		<TabsPrimitive.Panel
+			data-slot="tabs-content"
+			className={cn("outline-none", className)}
+			{...props}
+		/>
+	);
+}
+
+export { Tabs, TabsList, TabsTrigger, TabsContent };

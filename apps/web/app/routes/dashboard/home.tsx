@@ -46,9 +46,12 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
 		{
 			label: "Driver earnings",
 			role: "DRIVER",
-			value: null,
-			href: null,
-			cta: null,
+			value:
+				balance?.driverEarnings != null
+					? formatRupiah(balance.driverEarnings.total ?? 0)
+					: null,
+			href: "/driver/jobs",
+			cta: "View",
 		},
 	].filter((f) => user.roles.includes(f.role as (typeof user.roles)[number]));
 

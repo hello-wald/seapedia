@@ -21,6 +21,7 @@ const ROLE_NAV: Record<Role, NavItem[]> = {
 	],
 	DRIVER: [
 		{ to: "/driver", label: "Overview", end: true },
+		{ to: "/driver/find", label: "Find jobs" },
 		{ to: "/driver/jobs", label: "Jobs" },
 	],
 	ADMIN: [{ to: "/admin", label: "Overview", end: true }],
@@ -44,7 +45,7 @@ export function DashboardLayout({
 						className={({ isActive }) =>
 							`whitespace-nowrap rounded-md px-3 py-2 text-sm ${
 								isActive
-									? "bg-brand-100 font-medium text-brand-900"
+									? "bg-brand-600 font-medium text-surface"
 									: "text-gray-700 hover:bg-gray-100"
 							}`
 						}
@@ -59,7 +60,7 @@ export function DashboardLayout({
 							className={({ isActive }) =>
 								`whitespace-nowrap rounded-md px-3 py-2 text-sm ${
 									isActive
-										? "bg-brand-100 font-medium text-brand-900"
+										? "bg-brand-600 font-medium text-surface"
 										: "text-gray-700 hover:bg-gray-100"
 								}`
 							}

@@ -1,32 +1,54 @@
 import { Link } from "react-router";
-import type { DeliverySummary } from "@seapedia/shared";
+import type { DeliverySummary, DriverEarningsReport } from "@seapedia/shared";
 import type { Route } from "./+types/jobs";
 import { tokenContext } from "~/.server/middleware";
-import { getAvailableJobs, getMyJobs } from "~/.server/delivery";
+import {
+	getCompletedJobs,
+	getDriverReport,
+	getMyJobs,
+} from "~/.server/delivery";
 import { DeliveryJobCard } from "~/components/delivery/delivery-job-card";
+import { ReportCards } from "~/components/report/report-cards";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { formatRupiah } from "~/lib/format";
 
 export function meta() {
-	return [{ title: "Jobs · SEApedia" }];
+	return [{ title: "My jobs · SEApedia" }];
 }
 
 export async function loader({ context }: Route.LoaderArgs) {
 	const token = context.get(tokenContext);
 	if (!token) {
 		return {
-			available: [] as DeliverySummary[],
+			report: null,
 			active: [] as DeliverySummary[],
+			history: [] as DeliverySummary[],
 		};
 	}
-	const [available, active] = await Promise.all([
-		getAvailableJobs(token),
+	const [report, active, history] = await Promise.all([
+		getDriverReport(token),
 		getMyJobs(token),
+		getCompletedJobs(token),
 	]);
-	return { available: available ?? [], active: active ?? [] };
+	return { report, active: active ?? [], history: history ?? [] };
 }
 
-function JobGrid({ jobs }: { jobs: DeliverySummary[] }) {
+function JobGrid({
+	jobs,
+	emptyText,
+}: {
+	jobs: DeliverySummary[];
+	emptyText: string;
+}) {
+	if (jobs.length === 0) {
+		return (
+			<div className="rounded-lg border border-dashed p-10 text-center">
+				<p className="text-sm text-muted">{emptyText}</p>
+			</div>
+		);
+	}
 	return (
-		<div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+		<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 			{jobs.map((job) => (
 				<Link key={job.id} to={`/driver/jobs/${job.id}`}>
 					<DeliveryJobCard job={job} />
@@ -37,45 +59,74 @@ function JobGrid({ jobs }: { jobs: DeliverySummary[] }) {
 }
 
 export default function DriverJobs({ loaderData }: Route.ComponentProps) {
-	const { available, active } = loaderData;
+	const { report, active, history } = loaderData;
+
+	const stats: DriverEarningsReport = report ?? {
+		totalEarnings: 0,
+		completedJobs: 0,
+		activeJobs: 0,
+		itemsDelivered: 0,
+	};
+
+	const cards = [
+		{
+			label: "Total earnings",
+			value: formatRupiah(stats.totalEarnings),
+			caption: "100% of delivery fees",
+		},
+		{
+			label: "Completed jobs",
+			value: String(stats.completedJobs),
+			caption: "Delivered & confirmed",
+		},
+		{
+			label: "Active jobs",
+			value: String(stats.activeJobs),
+			caption: "In delivery now",
+		},
+		{
+			label: "Items delivered",
+			value: String(stats.itemsDelivered),
+			caption: "Total units delivered",
+		},
+	];
 
 	return (
-		<div className="space-y-10">
-			{active.length > 0 && (
-				<section>
-					<h1 className="text-xl font-semibold text-gray-900">
-						Active jobs
-					</h1>
-					<p className="mt-1 text-sm text-muted">
-						Jobs you're delivering. Open one to confirm it's
-						complete.
-					</p>
-					<JobGrid jobs={active} />
-				</section>
-			)}
+		<div>
+			<h1 className="text-xl font-semibold text-gray-900">My jobs</h1>
+			<p className="mt-1 text-sm text-muted">
+				Your delivery earnings and history. You earn 100% of each
+				order's delivery fee.
+			</p>
 
-			<section>
-				<h1 className="text-xl font-semibold text-gray-900">
-					Available jobs
-				</h1>
-				<p className="mt-1 text-sm text-muted">
-					Processed orders waiting for a driver. Take one to start
-					delivering.
-				</p>
+			<div className="mt-6">
+				<ReportCards stats={cards} />
+			</div>
 
-				{available.length === 0 ? (
-					<div className="mt-6 rounded-lg border border-dashed p-10 text-center">
-						<p className="font-medium text-gray-700">
-							No available jobs right now.
-						</p>
-						<p className="mt-1 text-sm text-muted">
-							Orders waiting for a driver will appear here.
-						</p>
-					</div>
-				) : (
-					<JobGrid jobs={available} />
-				)}
-			</section>
+			<Tabs defaultValue="active" className="mt-8">
+				<TabsList>
+					<TabsTrigger value="active">
+						Active ({active.length})
+					</TabsTrigger>
+					<TabsTrigger value="history">
+						History ({history.length})
+					</TabsTrigger>
+				</TabsList>
+
+				<TabsContent value="active">
+					<JobGrid
+						jobs={active}
+						emptyText="No active jobs. Take a job from Find jobs to start delivering."
+					/>
+				</TabsContent>
+
+				<TabsContent value="history">
+					<JobGrid
+						jobs={history}
+						emptyText="No completed jobs yet. Your delivered jobs will appear here."
+					/>
+				</TabsContent>
+			</Tabs>
 		</div>
 	);
 }

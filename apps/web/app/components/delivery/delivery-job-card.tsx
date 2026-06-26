@@ -51,12 +51,21 @@ export function DeliveryJobCard({ job }: { job: DeliverySummary }) {
 			<div className="mt-3 flex items-end justify-between border-t pt-4">
 				<div>
 					<p className="text-[11px] text-muted">
-						Payout · {job.totalItems}{" "}
+						{job.status === "SELESAI" ? "Earned" : "Payout"} ·{" "}
+						{job.totalItems}{" "}
 						{job.totalItems === 1 ? "item" : "items"}
 					</p>
 					<p className="text-md font-semibold text-brand-600">
 						{formatRupiah(job.deliveryFee)}
 					</p>
+					{job.status === "SELESAI" && job.completedAt && (
+						<p className="mt-0.5 text-[11px] text-muted">
+							Delivered{" "}
+							{new Date(job.completedAt).toLocaleDateString(
+								"id-ID",
+							)}
+						</p>
+					)}
 				</div>
 				<Button>
 					View job

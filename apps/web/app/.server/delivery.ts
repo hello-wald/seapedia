@@ -1,4 +1,8 @@
-import type { DeliveryDetail, DeliverySummary } from "@seapedia/shared";
+import type {
+	DeliveryDetail,
+	DeliverySummary,
+	DriverEarningsReport,
+} from "@seapedia/shared";
 import { getJson, postJson } from "./api";
 
 export function getAvailableJobs(token: string) {
@@ -7,6 +11,14 @@ export function getAvailableJobs(token: string) {
 
 export function getMyJobs(token: string) {
 	return getJson<DeliverySummary[]>("/api/delivery/mine", token);
+}
+
+export function getCompletedJobs(token: string) {
+	return getJson<DeliverySummary[]>("/api/delivery/history", token);
+}
+
+export function getDriverReport(token: string) {
+	return getJson<DriverEarningsReport>("/api/delivery/report", token);
 }
 
 export function getDeliveryDetail(token: string, id: string) {

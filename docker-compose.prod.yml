@@ -30,6 +30,8 @@ services:
             PORT: 3000
             DATABASE_URL: postgresql://seapedia:${POSTGRES_PASSWORD}@postgres:5432/seapedia?schema=public
             WEB_ORIGIN: https://${DOMAIN}
+        ports:
+            - "127.0.0.1:8081:3000"
         depends_on:
             postgres:
                 condition: service_healthy
@@ -45,27 +47,10 @@ services:
             PORT: 3000
             API_URL: http://api:3000
             SESSION_SECRET: ${SESSION_SECRET}
-        depends_on:
-            - api
-
-    caddy:
-        image: caddy:2
-        container_name: seapedia-caddy
-        restart: unless-stopped
         ports:
-            - "80:80"
-            - "443:443"
-        environment:
-            DOMAIN: ${DOMAIN}
-        volumes:
-            - ./Caddyfile:/etc/caddy/Caddyfile:ro
-            - caddy_data:/data
-            - caddy_config:/config
+            - "127.0.0.1:8080:3000"
         depends_on:
-            - web
             - api
 
 volumes:
     seapedia-db-data:
-    caddy_data:
-    caddy_config:

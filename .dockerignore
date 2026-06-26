@@ -1,0 +1,24 @@
+# Dependencies & build output
+**/node_modules
+**/dist
+**/build
+**/.react-router
+
+# Secrets
+**/.env
+**/.env.local
+.env.prod.example
+
+# VCS & tooling
+.git
+.gitignore
+.claude
+.vscode
+.idea
+
+# Logs & OS cruft
+*.log
+.DS_Store
+
+docker-compose*.yml
+Caddyfile

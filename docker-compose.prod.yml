@@ -1,0 +1,71 @@
+name: seapedia-prod
+
+services:
+    postgres:
+        image: postgres:17-alpine
+        container_name: seapedia-db
+        restart: unless-stopped
+        environment:
+            POSTGRES_USER: seapedia
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: seapedia
+        volumes:
+            - seapedia-db-data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U seapedia -d seapedia"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+
+    api:
+        build:
+            context: .
+            dockerfile: apps/api/Dockerfile
+        container_name: seapedia-api
+        restart: unless-stopped
+        command: sh -c "pnpm --filter api exec prisma migrate deploy && node apps/api/dist/main.js"
+        env_file: .env
+        environment:
+            NODE_ENV: production
+            PORT: 3000
+            DATABASE_URL: postgresql://seapedia:${POSTGRES_PASSWORD}@postgres:5432/seapedia?schema=public
+            WEB_ORIGIN: https://${DOMAIN}
+        depends_on:
+            postgres:
+                condition: service_healthy
+
+    web:
+        build:
+            context: .
+            dockerfile: apps/web/Dockerfile
+        container_name: seapedia-web
+        restart: unless-stopped
+        environment:
+            NODE_ENV: production
+            PORT: 3000
+            API_URL: http://api:3000
+            SESSION_SECRET: ${SESSION_SECRET}
+        depends_on:
+            - api
+
+    caddy:
+        image: caddy:2
+        container_name: seapedia-caddy
+        restart: unless-stopped
+        ports:
+            - "80:80"
+            - "443:443"
+        environment:
+            DOMAIN: ${DOMAIN}
+        volumes:
+            - ./Caddyfile:/etc/caddy/Caddyfile:ro
+            - caddy_data:/data
+            - caddy_config:/config
+        depends_on:
+            - web
+            - api
+
+volumes:
+    seapedia-db-data:
+    caddy_data:
+    caddy_config:

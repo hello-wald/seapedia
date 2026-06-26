@@ -8,6 +8,11 @@
 		"lint": "pnpm -r lint",
 		"db:up": "docker compose up -d",
 		"db:down": "docker compose down",
-		"db:migrate": "pnpm --filter api prisma:migrate"
+		"db:migrate": "pnpm --filter api prisma:migrate",
+		"prod:build": "docker compose -f docker-compose.prod.yml build",
+		"prod:up": "docker compose -f docker-compose.prod.yml up -d --build",
+		"prod:down": "docker compose -f docker-compose.prod.yml down",
+		"prod:logs": "docker compose -f docker-compose.prod.yml logs -f",
+		"prod:seed": "docker compose -f docker-compose.prod.yml exec api pnpm --filter api prisma:seed"
 	}
 }

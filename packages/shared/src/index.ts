@@ -10,3 +10,4 @@ export * from "./schemas/order";
 export * from "./schemas/delivery";
 export * from "./schemas/discount";
 export * from "./schemas/report";
+export * from "./schemas/admin";

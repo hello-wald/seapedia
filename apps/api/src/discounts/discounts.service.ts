@@ -1,5 +1,6 @@
 import {
 	BadRequestException,
+	ConflictException,
 	Injectable,
 	NotFoundException,
 } from "@nestjs/common";
@@ -16,25 +17,44 @@ import { PrismaService } from "../prisma/prisma.service";
 export class DiscountsService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	createVoucher(dto: CreateVoucherInput) {
-		return this.prisma.voucher.create({
-			data: {
-				code: dto.code,
-				percent: dto.percent,
-				expiresAt: dto.expiresAt,
-				usageLimit: dto.usageLimit,
-			},
-		});
+	async createVoucher(dto: CreateVoucherInput) {
+		try {
+			return await this.prisma.voucher.create({
+				data: {
+					code: dto.code,
+					percent: dto.percent,
+					expiresAt: dto.expiresAt,
+					usageLimit: dto.usageLimit,
+				},
+			});
+		} catch (err) {
+			throw this.codeConflict(err, dto.code);
+		}
 	}
 
-	createPromo(dto: CreatePromoInput) {
-		return this.prisma.promo.create({
-			data: {
-				code: dto.code,
-				percent: dto.percent,
-				expiresAt: dto.expiresAt,
-			},
-		});
+	async createPromo(dto: CreatePromoInput) {
+		try {
+			return await this.prisma.promo.create({
+				data: {
+					code: dto.code,
+					percent: dto.percent,
+					expiresAt: dto.expiresAt,
+				},
+			});
+		} catch (err) {
+			throw this.codeConflict(err, dto.code);
+		}
+	}
+
+	// Code already exist
+	private codeConflict(err: unknown, code: string) {
+		if (
+			err instanceof Prisma.PrismaClientKnownRequestError &&
+			err.code === "P2002"
+		) {
+			return new ConflictException(`Code "${code}" already exists`);
+		}
+		return err;
 	}
 
 	listVouchers() {

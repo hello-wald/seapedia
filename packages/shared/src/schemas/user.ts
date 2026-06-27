@@ -7,7 +7,6 @@ export type Role = z.infer<typeof roleSchema>;
 export const nonAdminRoleSchema = z.enum(["SELLER", "BUYER", "DRIVER"]);
 export type NonAdminRole = z.infer<typeof nonAdminRoleSchema>;
 
-// Public user shape
 export const userSchema = z.object({
 	id: z.string(),
 	name: z.string(),

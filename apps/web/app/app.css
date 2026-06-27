@@ -55,7 +55,6 @@ body {
 	@apply border-border;
 }
 
-/* shadcn token mappings — only what dropdown-menu actually uses */
 @theme inline {
 	--color-ring: var(--ring);
 	--color-foreground: var(--foreground);

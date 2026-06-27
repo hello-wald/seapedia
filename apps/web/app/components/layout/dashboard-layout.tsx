@@ -22,7 +22,15 @@ const ROLE_NAV: Record<Role, NavItem[]> = {
 		{ to: "/driver/find", label: "Find jobs" },
 		{ to: "/driver/jobs", label: "Jobs" },
 	],
-	ADMIN: [{ to: "/admin", label: "Overview", end: true }],
+	ADMIN: [
+		{ to: "/admin", label: "Overview", end: true },
+		{ to: "/admin/users", label: "Users" },
+		{ to: "/admin/stores", label: "Stores" },
+		{ to: "/admin/products", label: "Products" },
+		{ to: "/admin/orders", label: "Orders" },
+		{ to: "/admin/discounts", label: "Discounts" },
+		{ to: "/admin/deliveries", label: "Delivery jobs" },
+	],
 };
 
 export function DashboardLayout({

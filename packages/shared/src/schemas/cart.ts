@@ -8,7 +8,6 @@ export const addToCartSchema = z.object({
 		.int()
 		.positive("Quantity must be at least 1")
 		.default(1),
-	// set this to clear the cart and replace it with this product
 	replace: z.boolean().optional(),
 });
 export type AddToCartInput = z.infer<typeof addToCartSchema>;

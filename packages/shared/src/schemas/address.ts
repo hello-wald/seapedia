@@ -21,7 +21,11 @@ export const saveAddressSchema = z.object({
 		.trim()
 		.min(1, "Address is required")
 		.max(255, "Address is too long"),
-	city: z.string().trim().min(1, "City is required").max(100, "City is too long"),
+	city: z
+		.string()
+		.trim()
+		.min(1, "City is required")
+		.max(100, "City is too long"),
 	province: z
 		.string()
 		.trim()
@@ -31,7 +35,7 @@ export const saveAddressSchema = z.object({
 		.string()
 		.trim()
 		.min(1, "Postal code is required")
-		.max(20, "Postal code is too long"),
+		.max(5, "Postal code is too long"),
 	isDefault: z.coerce.boolean().optional(),
 });
 export type SaveAddressInput = z.infer<typeof saveAddressSchema>;

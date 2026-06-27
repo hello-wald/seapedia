@@ -79,4 +79,29 @@ export class WalletService {
 			},
 		});
 	}
+
+	// Credit the buyer wallet back.
+	async refund(
+		tx: Prisma.TransactionClient,
+		userId: string,
+		amount: number,
+		meta: { description: string; orderId?: string },
+	) {
+		const wallet = await this.getOrCreate(tx, userId);
+		const updated = await tx.wallet.update({
+			where: { id: wallet.id },
+			data: { balance: { increment: amount } },
+			select: { id: true, balance: true },
+		});
+		return tx.walletTransaction.create({
+			data: {
+				walletId: updated.id,
+				orderId: meta.orderId ?? null,
+				type: "REFUND",
+				amount,
+				balanceAfter: updated.balance,
+				description: meta.description,
+			},
+		});
+	}
 }

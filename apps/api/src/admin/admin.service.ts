@@ -77,7 +77,7 @@ export class AdminService {
 				menungguPengirim: status("MENUNGGU_PENGIRIM"),
 				dikirim: status("DIKIRIM"),
 				selesai: status("SELESAI"),
-				dibatalkan: status("DIBATALKAN"),
+				dikembalikan: status("DIKEMBALIKAN"),
 				gmv: gmv._sum.total ?? 0,
 			},
 			deliveries: { available, inTransit, delivered },

@@ -224,7 +224,7 @@ export class OrdersService {
 	// Buyer spending report.
 	async buyerReport(userId: string): Promise<BuyerSpendingReport> {
 		const orders = await this.prisma.order.findMany({
-			where: { buyerId: userId, status: { not: "DIBATALKAN" } },
+			where: { buyerId: userId, status: { not: "DIKEMBALIKAN" } },
 			select: {
 				total: true,
 				discount: true,
@@ -259,7 +259,7 @@ export class OrdersService {
 		if (!store) return empty;
 
 		const orders = await this.prisma.order.findMany({
-			where: { storeId: store.id, status: { not: "DIBATALKAN" } },
+			where: { storeId: store.id, status: { not: "DIKEMBALIKAN" } },
 			select: {
 				subtotal: true,
 				status: true,

@@ -27,7 +27,7 @@ export function OrderStatusTracker({
 	statusHistory = [],
 	compact = false,
 }: OrderStatusTrackerProps) {
-	if (status === "DIBATALKAN") {
+	if (status === "DIKEMBALIKAN") {
 		return (
 			<span
 				className={cn(
@@ -39,7 +39,7 @@ export function OrderStatusTracker({
 					className={compact ? "size-3" : "size-4"}
 					aria-hidden="true"
 				/>
-				{ORDER_STATUS_LABELS.DIBATALKAN}
+				{ORDER_STATUS_LABELS.DIKEMBALIKAN}
 			</span>
 		);
 	}

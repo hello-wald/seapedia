@@ -5,7 +5,7 @@ const STATUS_STYLES: Record<OrderStatus, string> = {
 	MENUNGGU_PENGIRIM: "bg-indigo-100 text-indigo-800",
 	DIKIRIM: "bg-blue-100 text-blue-800",
 	SELESAI: "bg-emerald-100 text-emerald-800",
-	DIBATALKAN: "bg-red-100 text-red-800",
+	DIKEMBALIKAN: "bg-red-100 text-red-800",
 };
 
 export function OrderStatusBadge({ status }: { status: OrderStatus }) {

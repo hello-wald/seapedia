@@ -47,7 +47,7 @@ export default function AdminHome({ loaderData }: Route.ComponentProps) {
 		{
 			label: "Orders",
 			value: String(orders.total),
-			caption: `${orders.selesai} completed · ${orders.dibatalkan} cancelled`,
+			caption: `${orders.selesai} completed · ${orders.dikembalikan} refunded`,
 		},
 		{
 			label: "Completed sales",

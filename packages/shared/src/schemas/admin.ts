@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { roleSchema } from "./user";
-import { orderStatusSchema } from "./order";
+import { orderStatusSchema, orderSummarySchema } from "./order";
 import { deliveryMethodSchema } from "./checkout";
 
 export const adminOverviewSchema = z.object({
@@ -21,7 +21,7 @@ export const adminOverviewSchema = z.object({
 		menungguPengirim: z.number().int(),
 		dikirim: z.number().int(),
 		selesai: z.number().int(),
-		dibatalkan: z.number().int(),
+		dikembalikan: z.number().int(),
 		gmv: z.number().int(),
 	}),
 	deliveries: z.object({
@@ -75,3 +75,23 @@ export const adminDeliveryRowSchema = z.object({
 	completedAt: z.string().datetime().nullable(),
 });
 export type AdminDeliveryRow = z.infer<typeof adminDeliveryRowSchema>;
+
+export const systemClockSchema = z.object({
+	offsetDays: z.number().int(),
+	now: z.string().datetime(), // effective "now" = realNow + offsetDays
+});
+export type SystemClock = z.infer<typeof systemClockSchema>;
+
+export const overduePageSchema = z.object({
+	clock: systemClockSchema,
+	overdue: z.array(orderSummarySchema), // non-terminal orders past their SLA deadline
+	returned: z.array(orderSummarySchema), // already-handled DIKEMBALIKAN orders
+});
+export type OverduePage = z.infer<typeof overduePageSchema>;
+
+export const overdueRunResultSchema = z.object({
+	processed: z.number().int(),
+	refundedTotal: z.number().int(),
+	orderIds: z.array(z.string()),
+});
+export type OverdueRunResult = z.infer<typeof overdueRunResultSchema>;

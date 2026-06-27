@@ -15,6 +15,22 @@ export const DELIVERY_FEES: Record<DeliveryMethod, number> = {
 	REGULAR: 10000,
 };
 
+export const SLA_DAYS: Record<DeliveryMethod, number> = {
+	INSTANT: 0,
+	NEXT_DAY: 1,
+	REGULAR: 3,
+};
+
+export function orderDeadline(
+	createdAt: Date | string,
+	method: DeliveryMethod,
+): Date {
+	const d = new Date(createdAt);
+	d.setHours(23, 59, 59, 999);
+	d.setDate(d.getDate() + SLA_DAYS[method]);
+	return d;
+}
+
 export const PPN_RATE = 0.12;
 
 export interface OrderTotals {

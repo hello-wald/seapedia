@@ -8,7 +8,7 @@ export const orderStatusSchema = z.enum([
 	"MENUNGGU_PENGIRIM",
 	"DIKIRIM",
 	"SELESAI",
-	"DIBATALKAN",
+	"DIKEMBALIKAN",
 ]);
 export type OrderStatus = z.infer<typeof orderStatusSchema>;
 
@@ -17,7 +17,7 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
 	MENUNGGU_PENGIRIM: "Menunggu Pengirim",
 	DIKIRIM: "Dikirim",
 	SELESAI: "Selesai",
-	DIBATALKAN: "Dibatalkan",
+	DIKEMBALIKAN: "Dikembalikan",
 };
 
 export const ORDER_STATUS_FLOW = [

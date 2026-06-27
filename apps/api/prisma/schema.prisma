@@ -163,7 +163,7 @@ enum OrderStatus {
   MENUNGGU_PENGIRIM
   DIKIRIM
   SELESAI
-  DIBATALKAN
+  DIKEMBALIKAN
 }
 
 model Order {
@@ -220,6 +220,12 @@ model OrderStatusHistory {
   createdAt DateTime    @default(now())
 
   @@index([orderId])
+}
+
+model SystemClock {
+  id         String   @id @default("singleton")
+  offsetDays Int      @default(0)
+  updatedAt  DateTime @updatedAt
 }
 
 model Delivery {

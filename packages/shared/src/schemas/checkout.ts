@@ -53,13 +53,15 @@ export function computeOrderTotals(
 	return { subtotal, discount, deliveryFee, tax, total };
 }
 
-export const checkoutSchema = z.object({
-	addressId: z.string().min(1, "Please select a delivery address"),
-	deliveryMethod: deliveryMethodSchema,
-	discountCode: z
-		.string()
-		.trim()
-		.optional()
-		.transform((c) => (c ? c.toUpperCase() : undefined)),
-});
+export const checkoutSchema = z
+	.object({
+		addressId: z.string().min(1, "Please select a delivery address"),
+		deliveryMethod: deliveryMethodSchema,
+		discountCode: z
+			.string()
+			.trim()
+			.optional()
+			.transform((c) => (c ? c.toUpperCase() : undefined)),
+	})
+	.strict();
 export type CheckoutInput = z.infer<typeof checkoutSchema>;

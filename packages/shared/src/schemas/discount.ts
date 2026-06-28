@@ -21,22 +21,27 @@ const percentSchema = z.coerce
 	.min(1, "Percent must be at least 1")
 	.max(100, "Percent cannot exceed 100");
 
-export const createVoucherSchema = z.object({
-	code: codeSchema,
-	percent: percentSchema,
-	expiresAt: z.coerce.date(),
-	usageLimit: z.coerce
-		.number()
-		.int()
-		.min(1, "Usage limit must be at least 1"),
-});
+export const createVoucherSchema = z
+	.object({
+		code: codeSchema,
+		percent: percentSchema,
+		expiresAt: z.coerce.date(),
+		usageLimit: z
+			.coerce.number()
+			.int()
+			.min(1, "Usage limit must be at least 1")
+			.max(1_000_000, "Usage limit is too large"),
+	})
+	.strict();
 export type CreateVoucherInput = z.infer<typeof createVoucherSchema>;
 
-export const createPromoSchema = z.object({
-	code: codeSchema,
-	percent: percentSchema,
-	expiresAt: z.coerce.date(),
-});
+export const createPromoSchema = z
+	.object({
+		code: codeSchema,
+		percent: percentSchema,
+		expiresAt: z.coerce.date(),
+	})
+	.strict();
 export type CreatePromoInput = z.infer<typeof createPromoSchema>;
 
 export const voucherSchema = z.object({

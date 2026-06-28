@@ -1,20 +1,29 @@
 import { z } from "zod";
 import { publicStoreSchema } from "./store";
 
-export const addToCartSchema = z.object({
-	productId: z.string().min(1, "Product is required"),
-	quantity: z.coerce
-		.number()
-		.int()
-		.positive("Quantity must be at least 1")
-		.default(1),
-	replace: z.boolean().optional(),
-});
+export const addToCartSchema = z
+	.object({
+		productId: z.string().min(1, "Product is required"),
+		quantity: z.coerce
+			.number()
+			.int()
+			.positive("Quantity must be at least 1")
+			.max(999, "Quantity is too large")
+			.default(1),
+		replace: z.boolean().optional(),
+	})
+	.strict();
 export type AddToCartInput = z.infer<typeof addToCartSchema>;
 
-export const updateCartItemSchema = z.object({
-	quantity: z.coerce.number().int().positive("Quantity must be at least 1"),
-});
+export const updateCartItemSchema = z
+	.object({
+		quantity: z.coerce
+			.number()
+			.int()
+			.positive("Quantity must be at least 1")
+			.max(999, "Quantity is too large"),
+	})
+	.strict();
 export type UpdateCartItemInput = z.infer<typeof updateCartItemSchema>;
 
 export const cartItemSchema = z.object({

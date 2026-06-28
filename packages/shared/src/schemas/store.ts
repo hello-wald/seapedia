@@ -1,17 +1,19 @@
 import { z } from "zod";
 
-export const createStoreSchema = z.object({
-	name: z
-		.string()
-		.trim()
-		.min(1, "Store name is required")
-		.max(60, "Store name is too long"),
-	description: z
-		.string()
-		.trim()
-		.max(280, "Description is too long")
-		.optional(),
-});
+export const createStoreSchema = z
+	.object({
+		name: z
+			.string()
+			.trim()
+			.min(1, "Store name is required")
+			.max(60, "Store name is too long"),
+		description: z
+			.string()
+			.trim()
+			.max(280, "Description is too long")
+			.optional(),
+	})
+	.strict();
 export type CreateStoreInput = z.infer<typeof createStoreSchema>;
 
 export const updateStoreSchema = createStoreSchema;

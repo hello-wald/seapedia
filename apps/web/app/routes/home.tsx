@@ -137,16 +137,16 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 					</p>
 
 					<div className="mt-6 grid gap-6 lg:grid-cols-2">
-						<div className="space-y-3">
+						<div className="min-w-0 space-y-3">
 							{reviews.map((review) => (
 								<Card key={review.id} className="p-4">
-									<div className="mb-1 flex items-center justify-between">
-										<span className="text-sm font-medium text-gray-900">
+									<div className="mb-1 flex items-center justify-between gap-2">
+										<span className="min-w-0 text-sm font-medium text-gray-900 [overflow-wrap:anywhere]">
 											{review.name}
 										</span>
 										<StarRating value={review.rating} />
 									</div>
-									<p className="text-sm leading-relaxed text-muted">
+									<p className="text-sm leading-relaxed text-muted whitespace-pre-line [overflow-wrap:anywhere]">
 										{review.comment}
 									</p>
 								</Card>
@@ -176,6 +176,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 										}
 										placeholder="e.g. Andi"
 										className="mt-1"
+										maxLength={60}
 										required
 									/>
 								</div>
@@ -207,6 +208,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 										placeholder="Tell us about your experience using SEAPEDIA…"
 										rows={3}
 										className="mt-1"
+										maxLength={500}
 										required
 									/>
 								</div>

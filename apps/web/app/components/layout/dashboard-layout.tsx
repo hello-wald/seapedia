@@ -30,6 +30,7 @@ const ROLE_NAV: Record<Role, NavItem[]> = {
 		{ to: "/admin/orders", label: "Orders" },
 		{ to: "/admin/discounts", label: "Discounts" },
 		{ to: "/admin/deliveries", label: "Delivery jobs" },
+		{ to: "/admin/overdue", label: "Overdue" },
 	],
 };
 

@@ -53,5 +53,6 @@ export default [
 		route("orders", "routes/admin/orders.tsx"),
 		route("discounts", "routes/admin/discounts.tsx"),
 		route("deliveries", "routes/admin/deliveries.tsx"),
+		route("overdue", "routes/admin/overdue.tsx"),
 	]),
 ] satisfies RouteConfig;

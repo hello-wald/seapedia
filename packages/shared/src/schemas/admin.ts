@@ -96,9 +96,7 @@ export const overdueRunResultSchema = z.object({
 });
 export type OverdueRunResult = z.infer<typeof overdueRunResultSchema>;
 
-export const advanceClockSchema = z
-	.object({
-		days: z.coerce.number().int().min(1).max(365).default(1),
-	})
-	.strict();
+export const advanceClockSchema = z.object({
+	days: z.coerce.number().int().min(1).max(365).default(1),
+});
 export type AdvanceClockInput = z.infer<typeof advanceClockSchema>;

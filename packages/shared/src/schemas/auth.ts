@@ -22,9 +22,11 @@ export const loginSchema = z
 	.strict();
 export type LoginInput = z.infer<typeof loginSchema>;
 
-export const setActiveRoleSchema = z.object({
-	role: roleSchema,
-});
+export const setActiveRoleSchema = z
+	.object({
+		role: roleSchema,
+	})
+	.strict();
 export type SetActiveRoleInput = z.infer<typeof setActiveRoleSchema>;
 
 export const authResponseSchema = z.object({

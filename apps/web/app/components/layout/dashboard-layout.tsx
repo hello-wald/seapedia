@@ -1,36 +1,83 @@
 import { NavLink } from "react-router";
 import type { Role, User } from "@seapedia/shared";
 
+interface NavSection {
+	title: string;
+	items: NavItem[];
+}
+
 interface NavItem {
 	to: string;
 	label: string;
 	end?: boolean;
 }
 
-const ROLE_NAV: Record<Role, NavItem[]> = {
-	BUYER: [
-		{ to: "/buyer/wallet", label: "Wallet" },
-		{ to: "/buyer/addresses", label: "Addresses" },
-		{ to: "/buyer/orders", label: "Orders" },
-	],
-	SELLER: [
-		{ to: "/seller", label: "Store", end: true },
-		{ to: "/seller/products", label: "Products" },
-		{ to: "/seller/orders", label: "Orders" },
-	],
-	DRIVER: [
-		{ to: "/driver/find", label: "Find jobs" },
-		{ to: "/driver/jobs", label: "Jobs" },
-	],
+const ROLE_NAV: Record<Role, NavSection[]> = {
 	ADMIN: [
-		{ to: "/admin", label: "Overview", end: true },
-		{ to: "/admin/users", label: "Users" },
-		{ to: "/admin/stores", label: "Stores" },
-		{ to: "/admin/products", label: "Products" },
-		{ to: "/admin/orders", label: "Orders" },
-		{ to: "/admin/discounts", label: "Discounts" },
-		{ to: "/admin/deliveries", label: "Delivery jobs" },
-		{ to: "/admin/overdue", label: "Overdue" },
+		{
+			title: "General",
+			items: [{ to: "/admin", label: "Overview", end: true }],
+		},
+		{
+			title: "Management",
+			items: [
+				{ to: "/admin/users", label: "Users" },
+				{ to: "/admin/stores", label: "Stores" },
+				{ to: "/admin/products", label: "Products" },
+			],
+		},
+		{
+			title: "Commerce",
+			items: [
+				{ to: "/admin/orders", label: "Orders" },
+				{ to: "/admin/discounts", label: "Discounts" },
+			],
+		},
+		{
+			title: "Logistics",
+			items: [
+				{ to: "/admin/deliveries", label: "Delivery jobs" },
+				{ to: "/admin/overdue", label: "Overdue" },
+			],
+		},
+	],
+
+	SELLER: [
+		{
+			title: "Store",
+			items: [
+				{ to: "/seller", label: "Store", end: true },
+				{ to: "/seller/products", label: "Products" },
+			],
+		},
+		{
+			title: "Sales",
+			items: [{ to: "/seller/orders", label: "Orders" }],
+		},
+	],
+
+	BUYER: [
+		{
+			title: "Account",
+			items: [
+				{ to: "/buyer/wallet", label: "Wallet" },
+				{ to: "/buyer/addresses", label: "Addresses" },
+			],
+		},
+		{
+			title: "Shopping",
+			items: [{ to: "/buyer/orders", label: "Orders" }],
+		},
+	],
+
+	DRIVER: [
+		{
+			title: "Work",
+			items: [
+				{ to: "/driver/find", label: "Find jobs" },
+				{ to: "/driver/jobs", label: "Jobs" },
+			],
+		},
 	],
 };
 
@@ -41,7 +88,7 @@ export function DashboardLayout({
 	user: User;
 	children: React.ReactNode;
 }) {
-	const items = user.activeRole ? ROLE_NAV[user.activeRole] : [];
+	const sections = user.activeRole ? ROLE_NAV[user.activeRole] : [];
 
 	return (
 		<div className="mx-auto max-w-6xl flex w-full flex-col gap-4 px-4 py-6 md:flex-row md:items-start md:gap-6 md:py-8">
@@ -59,31 +106,33 @@ export function DashboardLayout({
 					>
 						Dashboard
 					</NavLink>
-					{items.map((item) => (
-						<NavLink
-							key={item.to}
-							to={item.to}
-							end={item.end}
-							className={({ isActive }) =>
-								`whitespace-nowrap rounded-md px-3 py-2 text-sm ${
-									isActive
-										? "bg-brand-600 font-medium text-surface"
-										: "text-gray-700 hover:bg-gray-100"
-								}`
-							}
-						>
-							{item.label}
-						</NavLink>
-					))}
 
-					{user.roles.filter((r) => r !== "ADMIN").length > 1 && (
-						<NavLink
-							to="/select-role"
-							className="whitespace-nowrap rounded-md px-3 py-2 text-sm text-brand-700 hover:bg-gray-100 md:mt-2"
+					{sections.map((section) => (
+						<div
+							key={section.title}
+							className="space-y-1 flex flex-col"
 						>
-							Switch role
-						</NavLink>
-					)}
+							<p className="px-3 pt-4 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+								{section.title}
+							</p>
+							{section.items.map((item) => (
+								<NavLink
+									key={item.to}
+									to={item.to}
+									end={item.end}
+									className={({ isActive }) =>
+										`whitespace-nowrap rounded-md px-3 py-2 text-sm ${
+											isActive
+												? "bg-brand-600 font-medium text-surface"
+												: "text-gray-700 hover:bg-gray-100"
+										}`
+									}
+								>
+									{item.label}
+								</NavLink>
+							))}
+						</div>
+					))}
 				</nav>
 			</aside>
 

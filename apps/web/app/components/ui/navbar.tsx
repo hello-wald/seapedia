@@ -104,9 +104,10 @@ export function Navbar() {
 							<DropdownMenu>
 								<DropdownMenuTrigger className="flex items-center gap-2 rounded-md px-2 py-1 text-sm transition-colors hover:bg-gray-100 focus:outline-none cursor-pointer">
 									<UserAvatar name={user.name} />
-									<span className="hidden sm:inline font-medium">
+									<div className="hidden sm:inline font-medium">
 										{user.name}
-									</span>
+									</div>
+
 									<ChevronDown
 										size={14}
 										className="text-gray-400"

@@ -55,7 +55,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 				<div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-10 lg:grid-cols-[1.8fr_1fr]">
 					<div>
 						<span className="mb-3 inline-block rounded-md bg-brand-100 px-3 py-1 text-xs font-medium text-brand-700">
-							One marketplace · thousands of stores
+							Indonesia's #1 Online E-Commerce
 						</span>
 						<h1 className="text-3xl font-medium leading-tight text-gray-900 sm:text-4xl">
 							Shop from many stores,{" "}

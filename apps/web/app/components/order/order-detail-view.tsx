@@ -98,29 +98,6 @@ export function OrderDetailView({
 							{order.postalCode}
 						</p>
 					</Card>
-
-					<Card className="p-5">
-						<h2 className="text-sm font-semibold text-gray-900">
-							Status history
-						</h2>
-						<ol className="mt-3 space-y-2">
-							{order.statusHistory.map((h) => (
-								<li
-									key={h.id}
-									className="flex justify-between text-sm"
-								>
-									<span className="text-gray-900">
-										{ORDER_STATUS_LABELS[h.status]}
-									</span>
-									<span className="text-muted">
-										{new Date(h.createdAt).toLocaleString(
-											"id-ID",
-										)}
-									</span>
-								</li>
-							))}
-						</ol>
-					</Card>
 				</div>
 
 				<Card className="h-fit p-5">

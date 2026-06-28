@@ -13,7 +13,6 @@ interface OrderStatusTrackerProps {
 	compact?: boolean;
 }
 
-// Latest timestamp recorded for a given status.
 function formatTimestamp(history: OrderStatusHistory[], status: OrderStatus) {
 	let match: OrderStatusHistory | undefined;
 	for (const h of history) {
@@ -25,33 +24,35 @@ function formatTimestamp(history: OrderStatusHistory[], status: OrderStatus) {
 export function OrderStatusTracker({
 	status,
 	statusHistory = [],
-	compact = false,
 }: OrderStatusTrackerProps) {
-	if (status === "DIKEMBALIKAN") {
-		return (
-			<span
-				className={cn(
-					"inline-flex items-center gap-1.5 rounded-md bg-red-100 px-2 py-0.5 font-medium text-red-800",
-					compact ? "text-xs" : "text-sm",
-				)}
-			>
-				<X
-					className={compact ? "size-3" : "size-4"}
-					aria-hidden="true"
-				/>
-				{ORDER_STATUS_LABELS.DIKEMBALIKAN}
-			</span>
-		);
-	}
+	const isCancelled = status === "DIKEMBALIKAN";
 
-	const currentIndex = ORDER_STATUS_FLOW.indexOf(status);
+	const steps: OrderStatus[] = (() => {
+		if (!isCancelled) return [...ORDER_STATUS_FLOW];
+
+		const completedStatuses = new Set(statusHistory.map((h) => h.status));
+		const lastCompletedIndex = ORDER_STATUS_FLOW.findLastIndex((s) =>
+			completedStatuses.has(s),
+		);
+
+		return [
+			...ORDER_STATUS_FLOW.slice(0, lastCompletedIndex + 1),
+			"DIKEMBALIKAN",
+		];
+	})();
+
+	const currentIndex = isCancelled
+		? steps.length - 1
+		: ORDER_STATUS_FLOW.indexOf(status);
 
 	return (
 		<ol className="flex items-start">
-			{ORDER_STATUS_FLOW.map((step, i) => {
+			{steps.map((step, i) => {
 				const done = i < currentIndex;
 				const active = i === currentIndex;
+				const cancelled = active && isCancelled;
 				const at = formatTimestamp(statusHistory, step);
+
 				return (
 					<li
 						key={step}
@@ -63,9 +64,11 @@ export function OrderStatusTracker({
 								className={cn(
 									"h-0.5 flex-1",
 									i === 0 && "invisible",
-									i <= currentIndex
-										? "bg-emerald-500"
-										: "bg-gray-200",
+									cancelled
+										? "bg-red-400"
+										: i <= currentIndex
+											? "bg-emerald-500"
+											: "bg-gray-200",
 								)}
 							/>
 							<span
@@ -73,7 +76,10 @@ export function OrderStatusTracker({
 									"flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
 									done && "bg-emerald-500 text-white",
 									active &&
+										!cancelled &&
 										"bg-brand-600 text-white ring-4 ring-brand-100",
+									cancelled &&
+										"bg-red-500 text-white ring-4 ring-red-100",
 									!done &&
 										!active &&
 										"bg-gray-100 text-gray-400",
@@ -84,16 +90,17 @@ export function OrderStatusTracker({
 										className="size-4"
 										aria-hidden="true"
 									/>
+								) : cancelled ? (
+									<X className="size-4" aria-hidden="true" />
 								) : (
 									i + 1
 								)}
 							</span>
-							{/* right connector */}
+							{/* right connector — invisible on last step */}
 							<span
 								className={cn(
 									"h-0.5 flex-1",
-									i === ORDER_STATUS_FLOW.length - 1 &&
-										"invisible",
+									i === steps.length - 1 && "invisible",
 									i < currentIndex
 										? "bg-emerald-500"
 										: "bg-gray-200",
@@ -103,9 +110,11 @@ export function OrderStatusTracker({
 						<span
 							className={cn(
 								"mt-2 text-center text-xs",
-								active
-									? "font-semibold text-gray-900"
-									: "text-muted",
+								cancelled
+									? "font-semibold text-red-600"
+									: active
+										? "font-semibold text-gray-900"
+										: "text-muted",
 							)}
 						>
 							{ORDER_STATUS_LABELS[step]}

@@ -68,7 +68,7 @@ export default function NoAccess({ loaderData }: Route.ComponentProps) {
 					{canSwitch && (
 						<Link
 							to={`/select-role?next=${encodeURIComponent(next)}`}
-							className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-brand-gradient px-4 text-sm font-medium text-surface transition-colors hover:opacity-90"
+							className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-brand-600 px-4 text-sm font-medium text-surface transition-colors hover:opacity-90"
 						>
 							Change role
 						</Link>

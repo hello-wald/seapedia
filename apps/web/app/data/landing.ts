@@ -35,4 +35,18 @@ export const seedReviews: AppReview[] = [
     comment:
       "Signing up and switching roles is straightforward. Looks like a real marketplace.",
   },
+  {
+    id: "r4",
+    name: "Bima R.",
+    rating: 5,
+    comment:
+      "Pengiriman cepat dan seller-nya responsif. Aplikasinya gampang banget dipakai!",
+  },
+  {
+    id: "r5",
+    name: "Farida T.",
+    rating: 4,
+    comment:
+      "Product variety is great. Would love a wishlist feature in the future.",
+  },
 ];

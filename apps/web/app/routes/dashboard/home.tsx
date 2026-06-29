@@ -85,44 +85,49 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
 				</div>
 			</section>
 
-			<section className="rounded-xl border bg-surface p-5">
-				<h2 className="text-sm font-medium text-gray-700">
-					Balance &amp; earnings
-				</h2>
-				<p className="mt-1 text-xs text-muted">
-					Financial summaries across your roles.
-				</p>
-				<div className="mt-4 grid gap-3 sm:grid-cols-3">
-					{financials.map((f) => (
-						<div
-							key={f.label}
-							className={`rounded-lg border p-4 ${
-								f.value == null ? "border-dashed" : ""
-							}`}
-						>
-							<p className="text-xs text-muted">{f.label}</p>
-							{f.value != null ? (
-								<div className="flex justify-between items-end">
-									<p className="mt-1 text-lg font-semibold text-gray-900">
-										{f.value}
+			{financials.length > 0 && (
+				<section className="rounded-xl border bg-surface p-5">
+					<h2 className="text-sm font-medium text-gray-700">
+						Balance &amp; earnings
+					</h2>
+					<p className="mt-1 text-xs text-muted">
+						Financial summaries across your roles.
+					</p>
+					<div className="mt-4 grid gap-3 sm:grid-cols-3">
+						{financials.map((f) => (
+							<div
+								key={f.label}
+								className={`rounded-lg border p-4 ${
+									f.value == null ? "border-dashed" : ""
+								}`}
+							>
+								<p className="text-xs text-muted">{f.label}</p>
+								{f.value != null ? (
+									<div className="flex justify-between items-end">
+										<p className="mt-1 text-lg font-semibold text-gray-900">
+											{f.value}
+										</p>
+										{f.href && f.cta && (
+											<Link to={f.href}>
+												<Button
+													variant="accent"
+													size="xs"
+												>
+													{f.cta}
+												</Button>
+											</Link>
+										)}
+									</div>
+								) : (
+									<p className="mt-1 text-lg font-semibold text-gray-400">
+										Coming soon
 									</p>
-									{f.href && f.cta && (
-										<Link to={f.href}>
-											<Button variant="accent" size="xs">
-												{f.cta}
-											</Button>
-										</Link>
-									)}
-								</div>
-							) : (
-								<p className="mt-1 text-lg font-semibold text-gray-400">
-									Coming soon
-								</p>
-							)}
-						</div>
-					))}
-				</div>
-			</section>
+								)}
+							</div>
+						))}
+					</div>
+				</section>
+			)}
 		</DashboardLayout>
 	);
 }

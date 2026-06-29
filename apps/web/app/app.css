@@ -33,6 +33,17 @@
 	--shadow-card:
 		0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.07);
 	--shadow-md: 0 4px 12px 0 rgb(0 0 0 / 0.1);
+
+	--animate-marquee: marquee 35s linear infinite;
+}
+
+@keyframes marquee {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(-50%);
+	}
 }
 
 @utility bg-brand-gradient {

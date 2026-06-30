@@ -100,7 +100,7 @@ const stores: SeedStore[] = [
 
 async function seedAdmin() {
 	const email = process.env.ADMIN_EMAIL ?? "admin@seapedia.local";
-	const password = process.env.ADMIN_PASSWORD ?? "admin12345";
+	const password = process.env.ADMIN_PASSWORD ?? "admin123";
 	const passwordHash = await hash(password, 10);
 
 	const admin = await prisma.user.upsert({

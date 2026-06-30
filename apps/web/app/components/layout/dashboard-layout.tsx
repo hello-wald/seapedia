@@ -12,72 +12,30 @@ interface NavItem {
 	end?: boolean;
 }
 
-const ROLE_NAV: Record<Role, NavSection[]> = {
-	ADMIN: [
-		{
-			title: "General",
-			items: [{ to: "/admin", label: "Overview", end: true }],
-		},
-		{
-			title: "Management",
-			items: [
-				{ to: "/admin/users", label: "Users" },
-				{ to: "/admin/stores", label: "Stores" },
-				{ to: "/admin/products", label: "Products" },
-			],
-		},
-		{
-			title: "Commerce",
-			items: [
-				{ to: "/admin/orders", label: "Orders" },
-				{ to: "/admin/discounts", label: "Discounts" },
-			],
-		},
-		{
-			title: "Logistics",
-			items: [
-				{ to: "/admin/deliveries", label: "Delivery jobs" },
-				{ to: "/admin/overdue", label: "Overdue" },
-			],
-		},
-	],
-
-	SELLER: [
-		{
-			title: "Store",
-			items: [
-				{ to: "/seller", label: "Store", end: true },
-				{ to: "/seller/products", label: "Products" },
-			],
-		},
-		{
-			title: "Sales",
-			items: [{ to: "/seller/orders", label: "Orders" }],
-		},
-	],
-
+const ROLE_NAV: Record<Role, NavItem[]> = {
 	BUYER: [
-		{
-			title: "Account",
-			items: [
-				{ to: "/buyer/wallet", label: "Wallet" },
-				{ to: "/buyer/addresses", label: "Addresses" },
-			],
-		},
-		{
-			title: "Shopping",
-			items: [{ to: "/buyer/orders", label: "Orders" }],
-		},
+		{ to: "/buyer/wallet", label: "Wallet" },
+		{ to: "/buyer/addresses", label: "Addresses" },
+		{ to: "/buyer/orders", label: "Orders" },
 	],
-
+	SELLER: [
+		{ to: "/seller", label: "Store", end: true },
+		{ to: "/seller/products", label: "Products" },
+		{ to: "/seller/orders", label: "Orders" },
+	],
 	DRIVER: [
-		{
-			title: "Work",
-			items: [
-				{ to: "/driver/find", label: "Find jobs" },
-				{ to: "/driver/jobs", label: "Jobs" },
-			],
-		},
+		{ to: "/driver/find", label: "Find jobs" },
+		{ to: "/driver/jobs", label: "Jobs" },
+	],
+	ADMIN: [
+		{ to: "/admin", label: "Overview", end: true },
+		{ to: "/admin/users", label: "Users" },
+		{ to: "/admin/stores", label: "Stores" },
+		{ to: "/admin/products", label: "Products" },
+		{ to: "/admin/orders", label: "Orders" },
+		{ to: "/admin/discounts", label: "Discounts" },
+		{ to: "/admin/deliveries", label: "Delivery jobs" },
+		{ to: "/admin/overdue", label: "Overdue" },
 	],
 };
 
@@ -88,12 +46,12 @@ export function DashboardLayout({
 	user: User;
 	children: React.ReactNode;
 }) {
-	const sections = user.activeRole ? ROLE_NAV[user.activeRole] : [];
+	const items = user.activeRole ? ROLE_NAV[user.activeRole] : [];
 
 	return (
 		<div className="mx-auto max-w-6xl flex w-full flex-col gap-4 px-4 py-6 md:flex-row md:items-start md:gap-6 md:py-8">
-			<aside className="shrink-0 md:w-56 md:sticky md:top-24">
-				<nav className="flex gap-1 overflow-x-auto pb-2 md:flex-col md:overflow-visible md:pb-0">
+			<aside className="shrink-0 md:w-56 md:sticky md:top-23">
+				<nav className="flex md:flex-col gap-1 overflow-x-auto pb-2 md:overflow-visible md:pb-0">
 					<NavLink
 						to="/dashboard"
 						className={({ isActive }) =>
@@ -107,31 +65,21 @@ export function DashboardLayout({
 						Dashboard
 					</NavLink>
 
-					{sections.map((section) => (
-						<div
-							key={section.title}
-							className="space-y-1 flex flex-col"
+					{items.map((item) => (
+						<NavLink
+							key={item.to}
+							to={item.to}
+							end={item.end}
+							className={({ isActive }) =>
+								`whitespace-nowrap rounded-md px-3 py-2 text-sm ${
+									isActive
+										? "bg-brand-600 font-medium text-surface"
+										: "text-gray-700 hover:bg-gray-100"
+								}`
+							}
 						>
-							<p className="px-3 pt-4 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
-								{section.title}
-							</p>
-							{section.items.map((item) => (
-								<NavLink
-									key={item.to}
-									to={item.to}
-									end={item.end}
-									className={({ isActive }) =>
-										`whitespace-nowrap rounded-md px-3 py-2 text-sm ${
-											isActive
-												? "bg-brand-600 font-medium text-surface"
-												: "text-gray-700 hover:bg-gray-100"
-										}`
-									}
-								>
-									{item.label}
-								</NavLink>
-							))}
-						</div>
+							{item.label}
+						</NavLink>
 					))}
 				</nav>
 			</aside>

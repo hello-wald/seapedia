@@ -78,7 +78,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
 	return (
 		<main>
-			<section className="bg-[linear-gradient(to_bottom,#e8f9ff,#ffffff)]">
+			<section className="bg-[linear-gradient(to_bottom,#e8f9ff,#f9fafb)]">
 				<div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-10 lg:grid-cols-[1.8fr_1fr]">
 					<div>
 						<span className="mb-3 inline-block rounded-md bg-brand-100 px-3 py-1 text-xs font-medium text-brand-700">
@@ -107,21 +107,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 					<img
 						src="/hero.png"
 						alt="Shopping on SEApedia"
-						className="w-full rounded-2xl shadow-md"
+						className="w-full"
 					/>
-				</div>
-
-				<div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 pb-8">
-					<span className="text-sm text-gray-500">Categories:</span>
-					{categories.map((category) => (
-						<Link
-							key={category}
-							to="/products"
-							className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 hover:border-brand-600 hover:text-brand-700"
-						>
-							{category}
-						</Link>
-					))}
 				</div>
 			</section>
 
@@ -157,7 +144,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 				</div>
 			</section>
 
-			<section className="border-t ">
+			<section className="border-t">
 				<div className="mx-auto max-w-6xl px-4 pb-6 pt-12">
 					<div className="flex flex-wrap items-end justify-between gap-4">
 						<div>

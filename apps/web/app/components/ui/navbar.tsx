@@ -84,8 +84,6 @@ export function Navbar() {
 						</NavLink>
 					</nav>
 
-					<SearchForm className="hidden flex-1 md:flex md:max-w-md" />
-
 					{user ? (
 						<div className="ml-auto flex items-center gap-3">
 							{user.activeRole === "BUYER" && (
@@ -199,8 +197,6 @@ export function Navbar() {
 						</div>
 					)}
 				</div>
-
-				<SearchForm className="mt-3 w-full md:hidden" />
 			</div>
 		</header>
 	);

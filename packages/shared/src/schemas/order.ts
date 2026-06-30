@@ -15,7 +15,7 @@ export type OrderStatus = z.infer<typeof orderStatusSchema>;
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
 	SEDANG_DIKEMAS: "Sedang Dikemas",
 	MENUNGGU_PENGIRIM: "Menunggu Pengirim",
-	DIKIRIM: "Dikirim",
+	DIKIRIM: "Sedang Dikirim",
 	SELESAI: "Selesai",
 	DIKEMBALIKAN: "Dikembalikan",
 };

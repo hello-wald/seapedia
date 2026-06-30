@@ -48,7 +48,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			</head>
 			<body className="flex min-h-screen flex-col">
 				<Navbar />
-				<div className="flex flex-1 flex-col pt-28 md:pt-16">
+				<div className="flex flex-1 flex-col pt-27 md:pt-15">
 					{children}
 				</div>
 				<Footer />
